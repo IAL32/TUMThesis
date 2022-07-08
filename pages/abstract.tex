@@ -1,5 +1,43 @@
 \chapter{\abstractname}
 
-%TODO: Abstract
-
-
+The amount of computing resources required to train state-of-the-art deep neural networks is steadily growing.
+Most institutions cannot afford the latest technologies, which are sometimes needed to keep up with today's demanding deep neural network research.
+Access to powerful devices is therefore limited to few research institutions, slowing down research.
+In \cite{ryabinin2020learning} they propose a novel concept for decentralizing deep neural network training using large amounts of consumer-grade hardware.
+The training algorithm described in the paper is called ``Decentralized Mixture-of-Experts'' (DMoE) and employs a combination of decentralized and Mixture-of-Experts \cite{shazeer2017outrageously} techniques. This allows thousands of computing devices to join forces and train a single
+neural network model together.
+DMoE achieves this by splitting the target neural network model into
+different parts called partitions, similarly to model parallelism.
+Each partition is then replicated across a subset of workers participating in the training.
+Next, a gating function is used to select which workers can perform the next operation on the given input.
+After the workers have been selected and located using a Distributed Hash Table (DHT), the input data is sent to the workers, and a forward pass is performed.
+A similar algorithm is applied during the backward pass.
+DMoE proved that scaling model training to thousands of heterogeneous compute nodes is possible, thus enabling large-scale community research projects.
+Although DMoE is robust against training latency, it also requires large amounts of data to be exchanged between every participant worker.
+We may assume, however, that most participants in the network will not have datacenter-grade network connections and bandwidth.
+Therefore, the communications needed to perform training may saturate a worker's network.
+An approach suggested by \cite{ryabinin2020learning} to reduce the network load is to compress and convert tensors to a lower precision before transfer.
+From the combination of features and findings of \cite{ryabinin2020learning,ryabinin2021mosphit}, Hivemind was created.
+Hivemind \cite{hivemind} is an open-source framework that enables collaborative model training using a large number of heterogeneous devices from universities, companies, and volunteers.
+Every device participating in the computation may differ in its characteristics, featuring different architectures and network speeds.
+In Hivemind interactive demonstration \cite{hivemind}, 40 devices jointly trained a modified DALL-E \cite{ramesh2021zero} neural network model over 2.5 months.
+The reported results, however, do not include the participant's device information and metrics.
+Without this type of information, it's not possible to perform an independent analysis of the effects of different configurations on training.
+In this paper, we intend to reproduce the results of \cite{hivemind} on our cluster using different device configurations to identify the impact of key system metrics on Hivemind.
+Over the last years, research and software libraries like Hivemind have been focused on reducing and optimizing deep neural network model training times with techniques such as data and model parallelism.
+In \cite{xin2021production} however, the authors show that as much as 45\% of total training time may be spent on preprocessing tasks alone.
+Despite this, the impact of preprocessing pipelines is often ignored in current research.
+Therefore with this paper, we propose to explore the impact of preprocessing pipelines in \cite{hivemind}.
+As noted by \cite{isenko2022bottleneck}, it is crucial to find and analyze bottlenecks during computation to maximize performance.
+In their work, they also detail several possible improvements that can be applied in preprocessing pipelines, increasing throughput under certain circumstances.
+Intuitively, given the high amount of communications and data loading that DMoE needs, the preprocessing pipeline may be subject to inefficiencies.
+Using the techniques and findings showcased in \cite{isenko2022bottleneck}, this paper further aims to find bottlenecks in the Hivemind preprocessing pipeline.
+In this paper, we will analyze the impact of Hivemind's different possible scenarios on preprocessing pipelines.
+As we test the software and its limitations, we might find possible areas of improvement in Hivemind.
+Whenever possible, we will further contribute using the knowledge gathered through our experiments by improving the Hivemind \cite{hivemind} source-code.
+Our contributions can be summarized as follows:
+\begin{itemize}
+    \item We analyze the challenges of optimizing preprocessing pipelines in decentralized distributed training and provide insights on possible improvements
+    \item We verify the effectiveness of Hivemind for different peer hardware configurations concerning preprocessing pipelines
+    \item We use the gained knowledge and insights to contribute to the Hivemind open-source library.
+\end{itemize}

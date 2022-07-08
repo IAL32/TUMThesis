@@ -1,7 +1,125 @@
 @book{latex,
-  title = {LaTeX : A Documentation Preparation System User's Guide and Reference Manual},
+  title     = {LaTeX : A Documentation Preparation System User's Guide and Reference Manual},
   publisher = {Addison-Wesley Professional},
-  year = {1994},
-  author = {Leslie Lamport}
+  year      = {1994},
+  author    = {Leslie Lamport}
 }
 
+@inproceedings{isenko2022bottleneck,
+  author    = {Isenko, Alexander and Mayer, Ruben and Jedele, Jeffrey and Jacobsen, Hans-Arno},
+  title     = {Where Is My Training Bottleneck? Hidden Trade-Offs in Deep Learning Preprocessing Pipelines},
+  year      = {2022},
+  isbn      = {9781450392495},
+  publisher = {Association for Computing Machinery},
+  address   = {New York, NY, USA},
+  url       = {https://doi.org/10.1145/3514221.3517848},
+  doi       = {10.1145/3514221.3517848},
+  abstract  = {Preprocessing pipelines in deep learning aim to provide sufficient data throughput to keep the training processes busy. Maximizing resource utilization is becoming more challenging as the throughput of training processes increases with hardware innovations (e.g., faster GPUs, TPUs, and inter-connects) and advanced parallelization techniques that yield better scalability. At the same time, the amount of training data needed in order to train increasingly complex models is growing. As a consequence of this development, data preprocessing and provisioning are becoming a severe bottleneck in end-to-end deep learning pipelines.In this paper, we provide an in-depth analysis of data preprocessing pipelines from four different machine learning domains. We introduce a new perspective on efficiently preparing datasets for end-to-end deep learning pipelines and extract individual trade-offs to optimize throughput, preprocessing time, and storage consumption. Additionally, we provide an open-source profiling library that can automatically decide on a suitable preprocessing strategy to maximize throughput. By applying our generated insights to real-world use-cases, we obtain an increased throughput of 3x to 13x compared to an untuned system while keeping the pipeline functionally identical. These findings show the enormous potential of data pipeline tuning.},
+  booktitle = {Proceedings of the 2022 International Conference on Management of Data},
+  pages     = {1825–1839},
+  numpages  = {15},
+  keywords  = {data processing, datasets, preprocessing, machine learning, deep learning},
+  location  = {Philadelphia, PA, USA},
+  series    = {SIGMOD '22}
+}
+
+@article{ramesh2021zero,
+  author     = {Aditya Ramesh and
+                Mikhail Pavlov and
+                Gabriel Goh and
+                Scott Gray and
+                Chelsea Voss and
+                Alec Radford and
+                Mark Chen and
+                Ilya Sutskever},
+  title      = {Zero-Shot Text-to-Image Generation},
+  journal    = {CoRR},
+  volume     = {abs/2102.12092},
+  year       = {2021},
+  url        = {https://arxiv.org/abs/2102.12092},
+  eprinttype = {arXiv},
+  eprint     = {2102.12092},
+  timestamp  = {Tue, 02 Mar 2021 12:11:01 +0100},
+  biburl     = {https://dblp.org/rec/journals/corr/abs-2102-12092.bib},
+  bibsource  = {dblp computer science bibliography, https://dblp.org}
+}
+
+@article{ryabinin2020learning,
+  author     = {Maksim Riabinin and
+                Anton Gusev},
+  title      = {Learning@home: Crowdsourced Training of Large Neural Networks using
+                Decentralized Mixture-of-Experts},
+  journal    = {CoRR},
+  volume     = {abs/2002.04013},
+  year       = {2020},
+  url        = {https://arxiv.org/abs/2002.04013},
+  eprinttype = {arXiv},
+  eprint     = {2002.04013},
+  timestamp  = {Wed, 12 Feb 2020 16:38:55 +0100},
+  biburl     = {https://dblp.org/rec/journals/corr/abs-2002-04013.bib},
+  bibsource  = {dblp computer science bibliography, https://dblp.org}
+}
+
+@article{ryabinin2021mosphit,
+  author     = {Max Ryabinin and
+                Eduard Gorbunov and
+                Vsevolod Plokhotnyuk and
+                Gennady Pekhimenko},
+  title      = {Moshpit {SGD:} Communication-Efficient Decentralized Training on Heterogeneous
+                Unreliable Devices},
+  journal    = {CoRR},
+  volume     = {abs/2103.03239},
+  year       = {2021},
+  url        = {https://arxiv.org/abs/2103.03239},
+  eprinttype = {arXiv},
+  eprint     = {2103.03239},
+  timestamp  = {Mon, 15 Mar 2021 17:30:55 +0100},
+  biburl     = {https://dblp.org/rec/journals/corr/abs-2103-03239.bib},
+  bibsource  = {dblp computer science bibliography, https://dblp.org}
+}
+
+@article{shazeer2017outrageously,
+  author     = {Noam Shazeer and
+                Azalia Mirhoseini and
+                Krzysztof Maziarz and
+                Andy Davis and
+                Quoc V. Le and
+                Geoffrey E. Hinton and
+                Jeff Dean},
+  title      = {Outrageously Large Neural Networks: The Sparsely-Gated Mixture-of-Experts
+                Layer},
+  journal    = {CoRR},
+  volume     = {abs/1701.06538},
+  year       = {2017},
+  url        = {http://arxiv.org/abs/1701.06538},
+  eprinttype = {arXiv},
+  eprint     = {1701.06538},
+  timestamp  = {Mon, 13 Aug 2018 16:46:11 +0200},
+  biburl     = {https://dblp.org/rec/journals/corr/ShazeerMMDLHD17.bib},
+  bibsource  = {dblp computer science bibliography, https://dblp.org}
+}
+
+@misc{hivemind,
+  author       = {Learning{@}home team},
+  title        = {{H}ivemind: a {L}ibrary for {D}ecentralized {D}eep {L}earning},
+  year         = {2020},
+  howpublished = {\url{https://github.com/learning-at-home/hivemind}}
+}
+
+@article{xin2021production,
+  author     = {Doris Xin and
+                Hui Miao and
+                Aditya G. Parameswaran and
+                Neoklis Polyzotis},
+  title      = {Production Machine Learning Pipelines: Empirical Analysis and Optimization
+                Opportunities},
+  journal    = {CoRR},
+  volume     = {abs/2103.16007},
+  year       = {2021},
+  url        = {https://arxiv.org/abs/2103.16007},
+  eprinttype = {arXiv},
+  eprint     = {2103.16007},
+  timestamp  = {Wed, 07 Apr 2021 15:31:46 +0200},
+  biburl     = {https://dblp.org/rec/journals/corr/abs-2103-16007.bib},
+  bibsource  = {dblp computer science bibliography, https://dblp.org}
+}
