@@ -3,88 +3,45 @@
 
 \chapter{Introduction}\label{chapter:introduction}
 
+% What are NNs?
+% - Introduction to Neural Networks (4-5 pages + figures)
+% - Introduction to training a NN (3-4 pages + figures)
+
+% What is the Hivemind?
+% - Introduction to distributed training (4-5 pages + figures)
+% - Introduction to Hivemind (3-4 pages + figures)
+
+% What is the goal of this thesis?
+% - Introducction to bottleneck analysis (2-3 pages + figures)
+% - What measurements are we taking into consideration? E.g. bandwidth, cpu, memory, ... (2 pages + figures)
+
+% Setup
+% - Introduction to our systems architecture (2 pages + figures)
+
+% Experiments
+% - Introduction to first set of experiments (2 pages + table)
+% (compare training ResNet18 on Imagenet with 10k steps w.r.t distributed Hivemind setup)
+% - What are we looking for? (2 pages)
+% (is training with multiple peers really faster? And by how much? Given the same amount of resources and steps, is it better to train on a single node or with Hivemind?)
+% (what about distributed storage? Is there a limit to how many peers can access the same distributed storage such as CEPH?)
+% [optional] (can we make distributed storage smarter? E.g. use Hivemind's DHT to smartly assign batches to each peer)
+% - What have we found? (1-2 pages)
+% (Training with Hivemind is faster by Nx times, scaling linearly/exponentially/logarithmically)
+% - Introduction to second set of experiments [...]
+% [Ideally]
+% Train ResNet18 (or other) on as many resources as we can using Hivemind, see how long it takes to reach SOTA
+
+% Conclusions
+% - Are there any patterns across our experiments?
+% - When using Hivemind, what do we have to look out for?
+% - Are there any obvious issues and caveats that make training with Hivemind better than single-node training?
+% - Can we make any suggestions and improvements as to how to train distributed CV models using Hivemind?
+
+
+Neural networks (NNs) have been one of the main focuses of research in the past decade.
+They were first conceptualized back in 
+
 \section{Section}
-Citation test~\parencite{latex}.
+
 
 \subsection{Subsection}
-
-See~\autoref{tab:sample}, \autoref{fig:sample-drawing}, \autoref{fig:sample-plot}, \autoref{fig:sample-listing}.
-
-\begin{table}[htpb]
-  \caption[Example table]{An example for a simple table.}\label{tab:sample}
-  \centering
-  \begin{tabular}{l l l l}
-    \toprule
-      A & B & C & D \\
-    \midrule
-      1 & 2 & 1 & 2 \\
-      2 & 3 & 2 & 3 \\
-    \bottomrule
-  \end{tabular}
-\end{table}
-
-\begin{figure}[htpb]
-  \centering
-  % This should probably go into a file in figures/
-  \begin{tikzpicture}[node distance=3cm]
-    \node (R0) {$R_1$};
-    \node (R1) [right of=R0] {$R_2$};
-    \node (R2) [below of=R1] {$R_4$};
-    \node (R3) [below of=R0] {$R_3$};
-    \node (R4) [right of=R1] {$R_5$};
-
-    \path[every node]
-      (R0) edge (R1)
-      (R0) edge (R3)
-      (R3) edge (R2)
-      (R2) edge (R1)
-      (R1) edge (R4);
-  \end{tikzpicture}
-  \caption[Example drawing]{An example for a simple drawing.}\label{fig:sample-drawing}
-\end{figure}
-
-\begin{figure}[htpb]
-  \centering
-
-  \pgfplotstableset{col sep=&, row sep=\\}
-  % This should probably go into a file in data/
-  \pgfplotstableread{
-    a & b    \\
-    1 & 1000 \\
-    2 & 1500 \\
-    3 & 1600 \\
-  }\exampleA
-  \pgfplotstableread{
-    a & b    \\
-    1 & 1200 \\
-    2 & 800 \\
-    3 & 1400 \\
-  }\exampleB
-  % This should probably go into a file in figures/
-  \begin{tikzpicture}
-    \begin{axis}[
-        ymin=0,
-        legend style={legend pos=south east},
-        grid,
-        thick,
-        ylabel=Y,
-        xlabel=X
-      ]
-      \addplot table[x=a, y=b]{\exampleA};
-      \addlegendentry{Example A};
-      \addplot table[x=a, y=b]{\exampleB};
-      \addlegendentry{Example B};
-    \end{axis}
-  \end{tikzpicture}
-  \caption[Example plot]{An example for a simple plot.}\label{fig:sample-plot}
-\end{figure}
-
-\begin{figure}[htpb]
-  \centering
-  \begin{tabular}{c}
-  \begin{lstlisting}[language=SQL]
-    SELECT * FROM tbl WHERE tbl.str = "str"
-  \end{lstlisting}
-  \end{tabular}
-  \caption[Example listing]{An example for a source code listing.}\label{fig:sample-listing}
-\end{figure}
