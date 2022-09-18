@@ -52,14 +52,21 @@ These techniques can be briefly categorized as follows:
     \item \textit{Mixture-of-Experts}. Instead of conceptually splitting a model, we construct multiple, different models. Each of them specializes in a different subset of the complete set of training cases, helped by a gating function. This has been first introduced in 1991 by \cite{Jacobs1991mixtureofexperts} but has recently gained traction due to its attractiveness in numerous tasks.
 \end{itemize}
 
-Most of the frameworks and papers built on top of these techniques approach the issues that we have discussed before by employing tremendous amounts of expensive, top-of-the-art and heterogeneous technologies.
-However, universities, small companies and hobbyists that want to train the models described in these papers do not necessarily have access to a such vast amount of resources, limiting possibilities and research directions.
-
-
-Hivemind \cite{riabinin2020hivemind} is a framework that aims to 
-
 \begin{figure}[h]
     \caption{AlexNet \cite{alexnet2012} architecture shows one of the first examples of model parallelism. The training of convolutional layers is split across two GPUs, as the size of the model during training exceeded the available memory of a single GPU.}
     \label{fig:alexnet}
     \includegraphics[width=\textwidth]{./figures/alexnet.pdf}
 \end{figure}
+
+Most of the frameworks and papers built on top of these techniques approach the issues that we have discussed before by employing tremendous amounts of expensive, top-of-the-art and heterogeneous technologies.
+However, universities, small companies and hobbyists that want to train the models described in these papers do not necessarily have access to a such vast amount of resources, limiting possibilities and research directions.
+
+
+Hivemind \cite{riabinin2020hivemind} is a framework that aims to [...]
+
+Our contributions are as follows:
+\begin{itemize}
+    \item We analyze the challenges of optimizing preprocessing pipelines in decentralized distributed training and provide insights on possible improvements
+    \item We verify the effectiveness of Hivemind for different peer hardware configurations concerning preprocessing pipelines
+    \item We use the gained knowledge and insights to contribute to the Hivemind open-source library.
+\end{itemize}
