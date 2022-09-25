@@ -1,4 +1,80 @@
 \chapter{Fundamentals}\label{chapter:fundamentals}
 
-Neural networks (NNs) have been one of the main focuses of research in the past decade.
-They were first conceptualized back in 
+In this chapter, we are going to define the basic concepts needed to understand the contents of this paper.
+The mathematical details of algorithms or technical implementations of the presented technologies will not be described in depth, but rather briefly and concisely describe how they work.
+
+@isenko: still working on this part!
+
+We will formally define what are neural networks and how training works using a simple scenario.
+Following, we will introduce why and how distributed computing techniques are important in today's world, and how they can be used to facilitate neural network training.
+The topic of distributed neural network training is then presented.
+Finally, we describe Hivemind, how it works, why we chose this framework, which type of analysis we are going to conduct, and what kind of parameters are we focusing on in this paper.
+
+\section{Neural Networks}
+Neural networks (NNs) have been a major research area in the past decade.
+However, the basics of NNs as we know them today have been around for almost 70 years but did not gain much recognition until the 2010s.
+This is mostly because the success and viability of NNs are affected by two major factors, data availability and computational power, both of which were scarce or not advanced enough.
+As network-connected devices like smartphones and laptops started to become more widespread, the data that could be generated and gathered grew by several orders of magnitude.
+Today, NNs are used in many fields, from pharmaceutical to translation, from art generation to autonomous driving.
+
+Let us introduce a simple example to support the following explanations.
+We might want to classify many images of cats and dogs using a NN so that its inputs are images of cats or dogs, and the output is a binary variable indicating $0$ if the image is a cat and $1$ if it is a dog.
+
+To understand NNs, we have to look at their smallest components called \textit{neurons}, which are functions that can be defined as follows:
+\begin{equation}
+    y = g(X \cdot W + b)
+\end{equation}
+where $g$ is called the activation function, $X \in \mathbb{R}^n$ is the neuron's input, $y \in \mathbb{R}$ is the output, $W \in \mathbb{R}^n$ its weights or parameters, and $b \in \mathbb{R}$ its bias.
+Note that activation functions must be non-linear functions.
+We would like to use NNs to solve and predict non-linear problems such as our example, a task that can only be achieved by using non-linear functions.
+If we were to compose a neural network using only linear functions, the output would still be a linear function, regardless of a NN's complexity.
+Examples of non-linear functions commonly used inside NNs are the sigmoid and the rectified linear unit (ReLU).
+The weights $W$ and the bias $b$ define the result of the activation function $g$.
+
+The first and most simple type of NN that was devised is called \textit{feed-forward neural network} (FF) and is comprised of many neurons stacked together in \textit{layers}.
+These layers $f$ are then composed together to form a feed-forward NN:
+\begin{equation}
+    Y = f_1 \circ f2 \circ \ldots \circ f_L
+\end{equation}
+where $L$ is called the \textit{depth} of a FF neural network.
+The depth, as well as the types of layers and functions of a given neural network, define its \textit{architecture}.
+A NN architecture can be changed to obtain different results in terms of effectiveness, speed or other criteria.
+
+At this point, the model has fixed parameters $W$ and $b$, so given the same input, the output will be the same.
+We would like to update the parameters in such a way that the output reflects some arbitrary characteristic of the input, a process called \textit{training}.
+
+\subsection{Training}
+
+Using our example, the NN should learn over time and using many examples, which images represent a cat, and which ones represent a dog.
+We can provide information to the neural network about whether or not it is right or wrong, and update its parameters according to how much it is far from the truth.
+
+Formally, the function determining how much a NN is wrong about a guess is called a \textit{loss function}, which outputs a value called \textit{loss}.
+For a binary value such as our example, we can use the \textit{binary cross entropy} loss function.
+The lower this value is, the closest the NN is to the ground truth.
+
+We can derive certain properties from this value, such as how much should we change the parameters of our NN model so that we get a lower value the next time we try.
+This approach can be formally described as an optimization problem, where the optimization function is defined as follows:
+\begin{equation}
+    \arg \min_{W, b} \mathcal{L} (W, b)
+\end{equation}
+
+This function is called optimization functions or \textit{optimizers}, which define how the values of $W$ and $b$ should change to get a better loss, a process called \textit{training}.
+Commonly used optimizers for NN training are \textit{Stochastic Gradient Descent}, \textit{Root Mean Square} (RMSProp), \textit{Adam} and others.
+
+The values obtained using these optimization functions are used to determine the best next local optima for the given parameters.
+This process can then be repeated multiple times until an arbitrary loss value is reached, and the training process is stopped.
+The final architecture of the neural network and the state of the weights and biases are then fixed, obtaining the final NN model.
+
+At several stages during training, a neural network practitioner might want to validate the results obtained by using a set of data that is different from the one that has been used to train the NN.
+This is called the \textit{validation step}, and it is performed without changing the network's parameters or architecture.
+Validation steps are crucial to understanding if the changes made to a model are biased towards a specific set of inputs, an effect denominated \textit{underfitting}.
+
+\section{Distributed Computing and Storage for Neural Networks}
+
+\section{Distributed Training}
+
+\section{Hivemind}
+
+\subsection{Bottleneck Analysis}
+
+\subsection{Metrics}
