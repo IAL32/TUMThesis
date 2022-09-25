@@ -1,0 +1,33 @@
+\chapter{Experiments}\label{chapter:experiments}
+
+% template for future tables
+\begin{table}[h]
+    \centering
+    \caption{Something cool about this table}
+    \begin{tabular}{ |p{3cm}||p{3cm}|p{3cm}|p{3cm}|  }
+        \hline
+        \multicolumn{4}{|c|}{Country List}                                                 \\
+        \hline
+        Country Name or Area Name & ISO ALPHA 2 Code & ISO ALPHA 3 Code & ISO numeric Code \\
+        \hline
+        Afghanistan               & AF               & AFG              & 004              \\
+        Aland Islands             & AX               & ALA              & 248              \\
+        Albania                   & AL               & ALB              & 008              \\
+        Algeria                   & DZ               & DZA              & 012              \\
+        American Samoa            & AS               & ASM              & 016              \\
+        Andorra                   & AD               & AND              & 020              \\
+        Angola                    & AO               & AGO              & 024              \\
+        \hline
+    \end{tabular}
+    \label{table:effintable}
+\end{table}
+
+\begin{tabular}{ |c|c|c|c| }
+    \hline
+    col1                            & col2  & col3  \\
+    \hline
+    \multirow{3}{4em}{Multiple row} & cell2 & cell3 \\
+                                    & cell5 & cell6 \\
+                                    & cell8 & cell9 \\
+    \hline
+\end{tabular}

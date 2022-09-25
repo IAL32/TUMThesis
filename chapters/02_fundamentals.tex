@@ -36,9 +36,18 @@ These layers $f$ are then composed together to form a feed-forward NN:
 \begin{equation}
     Y = f_1 \circ f2 \circ \ldots \circ f_L
 \end{equation}
-where $L$ is called the \textit{depth} of a FF neural network.
+where $L$ is called the \textit{depth} of a FF neural network, or number of \textit{hidden layers} in a FF network.
+
+\begin{figure}[h]
+    \centering
+    \caption{An example of a neural network, with input layers (green nodes), hidden layers (blue nodes), and output layer (red node).}
+    \label{fig:neural-network}
+    \input{figures/02_neural-network}
+\end{figure}
+
 The depth, as well as the types of layers and functions of a given neural network, define its \textit{architecture}.
 A NN architecture can be changed to obtain different results in terms of effectiveness, speed or other criteria.
+An example of one such architecture is represented in \autoref{fig:neural-network}.
 
 At this point, the model has fixed parameters $W$ and $b$, so given the same input, the output will be the same.
 We would like to update the parameters in such a way that the output reflects some arbitrary characteristic of the input, a process called \textit{training}.
