@@ -62,12 +62,13 @@ For a binary value such as our example, we can use the \textit{binary cross entr
 The lower this value is, the closest the NN is to the ground truth.
 
 We can derive certain properties from this value, such as how much should we change the parameters of our NN model so that we get a lower value the next time we try.
-This approach can be formally described as an optimization problem, where the optimization function is defined as follows:
+This approach can be formally described as an optimization problem, where the optimization function, also called optimizer, is defined as follows:
 \begin{equation}
     \arg \min_{W, b} \mathcal{L} (W, b)
 \end{equation}
 
-This function is called optimization functions or \textit{optimizers}, which define how the values of $W$ and $b$ should change to get a better loss, a process called \textit{training}.
+The optimizer function defines how the values of $W$ and $b$ should change to get a better loss.
+The process of iteratively updating these values multiple times using different inputs is called \textit{training}.
 Commonly used optimizers for NN training are \textit{Stochastic Gradient Descent}, \textit{Root Mean Square} (RMSProp), \textit{Adam} and others.
 
 The values obtained using these optimization functions are used to determine the best next local optima for the given parameters.
