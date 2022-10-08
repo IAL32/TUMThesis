@@ -1,0 +1,165 @@
+\chapter{Experiments}\label{chapter:experiments}
+
+In this chapter, we showcase the basic setup of our experiments.
+To preserve a comparison consistency between each experiment run, the number of steps depends on two factors: the number of peers involved in the training, and the batch size.
+
+\section{Base Case}
+The most basic setup for training a neural network is composed of a single device with access to powerful computing hardware, such as a CPU, GPU or TPU, where the model is trained on.
+In most cases, using a single computing device is infeasible, and parallelization techniques are employed to speed up training or to train bigger models that do not fit in the memory of a single device.
+For our purposes, this type of training can be seen as training on a single device.
+
+In this thesis, we define the baseline for our experiments as training ResNet18 on a single machine with 16 vCPUs.
+We cover the following training hyperparameters:
+\begin{itemize}
+    \item Batch Size (BS): 32, 64 and 128;
+    \item Learning Rate (LR): 0.001, 0.01 and 0.1;
+    \item Max Steps (MS): 10.000 for BS=32, 5000 for BS=64, 2500 for BS=128.
+\end{itemize}
+Each baseline run is repeated 4 times to observe the reproducibility of the measurements.
+
+\begin{table}[ht]
+    \centering
+    \caption{List of baseline experiments and hyperparameters}
+    \begin{tabular}{ |p{3cm}|p{3cm}|p{3cm}|  }
+        \hline
+        \multicolumn{3}{|c|}{Baseline experiments} \\
+        \hline
+        Max Steps & Batch Size & Learning Rate     \\
+        \hline
+        10.000    & 32         & 0.001             \\
+        10.000    & 32         & 0.01              \\
+        10.000    & 32         & 0.1               \\
+        5000      & 64         & 0.001             \\
+        5000      & 64         & 0.01              \\
+        5000      & 64         & 0.1               \\
+        2500      & 128        & 0.001             \\
+        2500      & 128        & 0.01              \\
+        2500      & 128        & 0.1               \\
+        \hline
+    \end{tabular}
+    \label{table:baseline-experiments}
+\end{table}
+
+\clearpage
+
+\section{Not-Base Case}
+
+All non-base case scenarios use Hivemind with at least two nodes involved in the training.
+The model and the dataset remain the same across each run, and every peer has full access to the entire dataset through our CEPH cluster.
+We repeat the same experiments as the baseline runs, but alter the following Hivemind settings:
+\begin{itemize}
+    \item \texttt{Use Local Updates (LU)} (T/F);
+    \item \texttt{Number of Peers (NoP)} (2/4/8/16);
+    \item \texttt{Target Batch Size (TBS)} (10.000/5000/2500/1250/625);
+    \item \texttt{vCPUs} (1/2/4/8);
+    \item \texttt{Max Steps (MS)} (5000/2500/1250/625), depending on the number of peers and batch size, but always totaling 10.000 steps per experiment;
+\end{itemize}
+
+In total, we have executed 144 experiments to test Hivemind.
+The \autoref{table:hivemind-experiments} shows a list of all Hivemind experiments, with each one of them being also executed with LU=True and LU=False.
+
+\begin{tabularx}{\linewidth}{ |c|c|c|c|c|c|  }
+    \caption{List of Hivemind experiments and hyperparameters. Every experiment has been executed once, and every time with two peers.}\label{table:hivemind-experiments} \\
+    \hline
+    \multicolumn{6}{|c|}{Hivemind experiments}                                                                                                                            \\
+    \hline
+    MS   & NoP & vCPUs & BS  & LR    & TBS                                                                                                                                \\
+    \hline
+    5000 & 2   & 8     & 32  & 0.001 & 10.000                                                                                                                             \\
+    5000 & 2   & 8     & 32  & 0.001 & 5000                                                                                                                               \\
+    5000 & 2   & 8     & 32  & 0.001 & 2500                                                                                                                               \\
+    5000 & 2   & 8     & 32  & 0.001 & 1250                                                                                                                               \\
+    5000 & 2   & 8     & 32  & 0.001 & 625                                                                                                                                \\
+    5000 & 2   & 8     & 32  & 0.01  & 10.000                                                                                                                             \\
+    5000 & 2   & 8     & 32  & 0.01  & 5000                                                                                                                               \\
+    5000 & 2   & 8     & 32  & 0.01  & 2500                                                                                                                               \\
+    5000 & 2   & 8     & 32  & 0.01  & 1250                                                                                                                               \\
+    5000 & 2   & 8     & 32  & 0.01  & 625                                                                                                                                \\
+    5000 & 2   & 8     & 32  & 0.1   & 10.000                                                                                                                             \\
+    5000 & 2   & 8     & 32  & 0.1   & 5000                                                                                                                               \\
+    5000 & 2   & 8     & 32  & 0.1   & 2500                                                                                                                               \\
+    5000 & 2   & 8     & 32  & 0.1   & 1250                                                                                                                               \\
+    5000 & 2   & 8     & 32  & 0.1   & 625                                                                                                                                \\
+    2500 & 4   & 4     & 32  & 0.001 & 1250                                                                                                                               \\
+    1250 & 8   & 2     & 32  & 0.001 & 1250                                                                                                                               \\
+    625  & 16  & 1     & 32  & 0.001 & 1250                                                                                                                               \\
+    2500 & 4   & 4     & 32  & 0.01  & 1250                                                                                                                               \\
+    1250 & 8   & 2     & 32  & 0.01  & 1250                                                                                                                               \\
+    625  & 16  & 1     & 32  & 0.01  & 1250                                                                                                                               \\
+    2500 & 4   & 4     & 32  & 0.1   & 1250                                                                                                                               \\
+    1250 & 8   & 2     & 32  & 0.1   & 1250                                                                                                                               \\
+    625  & 16  & 1     & 32  & 0.1   & 1250                                                                                                                               \\
+    \hline
+    2500 & 2   & 8     & 64  & 0.001 & 10.000                                                                                                                             \\
+    2500 & 2   & 8     & 64  & 0.001 & 5000                                                                                                                               \\
+    2500 & 2   & 8     & 64  & 0.001 & 2500                                                                                                                               \\
+    2500 & 2   & 8     & 64  & 0.001 & 1250                                                                                                                               \\
+    2500 & 2   & 8     & 64  & 0.001 & 625                                                                                                                                \\
+    2500 & 2   & 8     & 64  & 0.01  & 10.000                                                                                                                             \\
+    2500 & 2   & 8     & 64  & 0.01  & 5000                                                                                                                               \\
+    2500 & 2   & 8     & 64  & 0.01  & 2500                                                                                                                               \\
+    2500 & 2   & 8     & 64  & 0.01  & 1250                                                                                                                               \\
+    2500 & 2   & 8     & 64  & 0.01  & 625                                                                                                                                \\
+    2500 & 2   & 8     & 64  & 0.1   & 10.000                                                                                                                             \\
+    2500 & 2   & 8     & 64  & 0.1   & 5000                                                                                                                               \\
+    2500 & 2   & 8     & 64  & 0.1   & 2500                                                                                                                               \\
+    2500 & 2   & 8     & 64  & 0.1   & 1250                                                                                                                               \\
+    2500 & 2   & 8     & 64  & 0.1   & 625                                                                                                                                \\
+    2500 & 4   & 4     & 64  & 0.001 & 1250                                                                                                                               \\
+    1250 & 8   & 2     & 64  & 0.001 & 1250                                                                                                                               \\
+    625  & 16  & 1     & 64  & 0.001 & 1250                                                                                                                               \\
+    2500 & 4   & 4     & 64  & 0.01  & 1250                                                                                                                               \\
+    1250 & 8   & 2     & 64  & 0.01  & 1250                                                                                                                               \\
+    625  & 16  & 1     & 64  & 0.01  & 1250                                                                                                                               \\
+    2500 & 4   & 4     & 64  & 0.1   & 1250                                                                                                                               \\
+    1250 & 8   & 2     & 64  & 0.1   & 1250                                                                                                                               \\
+    625  & 16  & 1     & 64  & 0.1   & 1250                                                                                                                               \\
+    \hline
+    1250 & 2   & 8     & 128 & 0.001 & 10.000                                                                                                                             \\
+    1250 & 2   & 8     & 128 & 0.001 & 5000                                                                                                                               \\
+    1250 & 2   & 8     & 128 & 0.001 & 2500                                                                                                                               \\
+    1250 & 2   & 8     & 128 & 0.001 & 1250                                                                                                                               \\
+    1250 & 2   & 8     & 128 & 0.001 & 625                                                                                                                                \\
+    1250 & 2   & 8     & 128 & 0.01  & 10.000                                                                                                                             \\
+    1250 & 2   & 8     & 128 & 0.01  & 5000                                                                                                                               \\
+    1250 & 2   & 8     & 128 & 0.01  & 2500                                                                                                                               \\
+    1250 & 2   & 8     & 128 & 0.01  & 1250                                                                                                                               \\
+    1250 & 2   & 8     & 128 & 0.01  & 625                                                                                                                                \\
+    1250 & 2   & 8     & 128 & 0.1   & 10.000                                                                                                                             \\
+    1250 & 2   & 8     & 128 & 0.1   & 5000                                                                                                                               \\
+    1250 & 2   & 8     & 128 & 0.1   & 2500                                                                                                                               \\
+    1250 & 2   & 8     & 128 & 0.1   & 1250                                                                                                                               \\
+    1250 & 2   & 8     & 128 & 0.1   & 625                                                                                                                                \\
+    2500 & 4   & 4     & 128 & 0.001 & 1250                                                                                                                               \\
+    1250 & 8   & 2     & 128 & 0.001 & 1250                                                                                                                               \\
+    625  & 16  & 1     & 128 & 0.001 & 1250                                                                                                                               \\
+    2500 & 4   & 4     & 128 & 0.01  & 1250                                                                                                                               \\
+    1250 & 8   & 2     & 128 & 0.01  & 1250                                                                                                                               \\
+    625  & 16  & 1     & 128 & 0.01  & 1250                                                                                                                               \\
+    2500 & 4   & 4     & 128 & 0.1   & 1250                                                                                                                               \\
+    1250 & 8   & 2     & 128 & 0.1   & 1250                                                                                                                               \\
+    625  & 16  & 1     & 128 & 0.1   & 1250                                                                                                                               \\
+    \hline
+\end{tabularx}
+
+% template for future tables
+\begin{table}[h]
+    \centering
+    \caption{Something cool about this table}
+    \begin{tabular}{ |p{3cm}||p{3cm}|p{3cm}|p{3cm}|  }
+        \hline
+        \multicolumn{4}{|c|}{Country List}                                                 \\
+        \hline
+        Country Name or Area Name & ISO ALPHA 2 Code & ISO ALPHA 3 Code & ISO numeric Code \\
+        \hline
+        Afghanistan               & AF               & AFG              & 004              \\
+        Aland Islands             & AX               & ALA              & 248              \\
+        Albania                   & AL               & ALB              & 008              \\
+        Algeria                   & DZ               & DZA              & 012              \\
+        American Samoa            & AS               & ASM              & 016              \\
+        Andorra                   & AD               & AND              & 020              \\
+        Angola                    & AO               & AGO              & 024              \\
+        \hline
+    \end{tabular}
+    \label{table:effintable}
+\end{table}

@@ -64,7 +64,7 @@ Most of the frameworks and papers built on top of the techniques presented previ
 However, universities, small companies and hobbyists that want to train the models described in these papers do not necessarily have access to a such vast amount of resources, limiting possibilities and research directions.
 
 The framework Hivemind \cite{riabinin2020hivemind} aims to help with these issues by allowing distributed neural network training across the internet using heterogeneous devices.
-The authors provide two types of training: \textit{parameter averaging} and \textit{decentralized mixture-of-experts}.
+The authors provide two types of training: \textit{decentralized parameter averaging} and \textit{decentralized mixture-of-experts}.
 
 Hivemind implements two training algorithms: ``Decentralized Mixture-of-Experts'' (DMoE) \cite{ryabinin2020learning} and ``Parameter Averaging''.
 DMoE has been shown to work well for decentralized deep neural network training using large amounts of consumer-grade hardware.
@@ -84,22 +84,23 @@ DMoE proved that scaling model training to thousands of heterogeneous compute no
 % Therefore, the communications needed to perform training may saturate a worker's network.
 % An approach suggested by \cite{ryabinin2020learning} to reduce the network load is to compress and convert tensors to a lower precision before transfer.
 
-Despite an academic interest in DMoE, we have eventually decided against performing any experimentation on DMoE for this thesis, as the API was not stable enough.
-For this reason, the focus of this thesis is on Parameter Averaging, the second type of training algorithm implemented by Hivemind.
-With Parameter Averaging, each node participating in the training must have a copy of the model in memory.
+Despite an academic interest in DMoE, we have eventually decided against performing any experimentation on DMoE for this thesis, as the API was not stable enough at the time of experiments.
+For this reason, the focus of this thesis is on decentralized parameter averaging, the second type of training algorithm implemented by Hivemind.
+With decentralized parameter averaging, each node participating in the training must have a copy of the model in memory.
 Every node performs training at its own pace, accumulating samples toward a global goal called ``target batch size''.
 Once this goal has been reached, an averaging round starts.
 The final gradients are calculated depending on the contribution in terms of the number of samples done by each peer, ensuring stability in case of peer failure.
 
+Decentralized parameter averaging has shown promising results \cite{learning30:online}, successfully training a modified version of DALL-E using 40 peers over two months.
+TODO: add something else about this.
+
 Over the last few years, research and software libraries like Hivemind have been focused on reducing and optimizing deep neural network model training times with techniques such as data and model parallelism.
 In \cite{xin2021production} however, the authors show that as much as 45\% of total training time may be spent on preprocessing tasks alone.
 Despite this, the impact of preprocessing pipelines is often ignored in current research.
-Therefore with this paper, we propose to explore the impact of preprocessing pipelines in \cite{hivemind}.
-
 As noted by \citeauthor{isenko2022bottleneck} \cite{isenko2022bottleneck}, it is crucial to find and analyze bottlenecks during computation to maximize performance.
 In their work, they also detail several possible improvements that can be applied in preprocessing pipelines, increasing throughput under certain circumstances.
 Intuitively, given the high amount of communications and data loading needed by parameter averaging, training may be subject to inefficiencies.
-Using the techniques and findings showcased in \cite{isenko2022bottleneck}, this thesis further aims to find bottlenecks in the Hivemind training.
+Using the techniques and findings showcased in \cite{isenko2022bottleneck}, this thesis further aims to find bottlenecks while training with Hivemind.
 
 \section{Approach}
 
@@ -115,7 +116,7 @@ We compare training with key Hivemind settings, namely:
 \end{itemize}
 
 As we test the software and its limitations, we might find possible areas of improvement in Hivemind.
-Whenever possible, we will further contribute using the knowledge gathered through our experiments by improving the Hivemind \cite{hivemind} source-code.
+Whenever possible, we will further contribute using the knowledge gathered through our experiments by improving the Hivemind \cite{hivemind} source code.
 
 \section{Contributions}
 
