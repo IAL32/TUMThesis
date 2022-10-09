@@ -83,8 +83,42 @@ Validation steps are crucial to understanding if the changes made to a model are
 
 \section{Distributed Training}
 
-\section{Hivemind}
-
 \subsection{Bottleneck Analysis}
 
 \subsection{Metrics}
+
+\section{Hivemind}
+Hivemind is a framework that aims to enable decentralized training using several techniques, such as decentralized parameter averaging or decentralized mixture-of-experts.
+In this section, we will introduce on a high level the main components and settings that we will use throughout the thesis.
+
+\subsection{Decentralized Hash Table (DHT)}
+A decentralized hash table or DHT is a system that provides a set of features similar to a hash table in a distributed environment.
+Because Hivemind focuses on providing a training environment for nodes across the internet, a DHT is a beneficial part of the architecture because of its fault-tolerant properties.
+Under the hood, Hivemind uses a DHT to track the presence or dropout of peers during training and to allow a direct exchange of data between them.
+
+\subsection{Optimizer}
+One of the main components of Hivemind is the Hivemind Optimizer, which wraps around any other implementation of a \texttt{torch.optim.Optimizer}.
+Therefore, the Hivemind Optimizer can be used as a drop-in replacement in regular training operations.
+With default settings and with no other peer, the Hivemind optimizer is designed to perform exactly as the underlying \texttt{torch.optim.Optimizer}.
+
+\subsubsection{Target Batch Size}
+
+In Hivemind, the target batch size (TBS) is defined as the global number of samples that every peer has collectively processed during a collaborative run in the current Hivemind epoch or $HE$.
+A Hivemind epoch does not necessarily correspond to a full pass over the training data.
+In Hivemind, the HE starts at 0 at the beginning of training and increases by one by each peer every time the TBS is reached.
+Let's describe a simple scenario:
+\begin{itemize}
+    \item two peers are collaboratively training a model;
+    \item the TBS is 256;
+    \item each peer processes a batch size of 64;
+    \item each peer processes every batch at roughly the same speed;
+    \item each peer starts training at the same time.
+\end{itemize}
+In this scenario, after one step the number of globally accumulated samples is equal to $64+64=128$, as each peer has processed the same amount of samples in the same amount of time.
+After another step, the accumulated samples are equal to $128+(64+64)=256$.
+Because the TBS is now 256, now the Hivemind optimizer starts an averaging round between all connected peers and when done, executes the optimizer step.
+After the averaging round ends, each peer locally performs $HE=HE+1$.
+
+\subsubsection{Local Updates}
+
+

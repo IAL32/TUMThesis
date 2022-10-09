@@ -17,34 +17,43 @@ We cover the following training hyperparameters:
 \end{itemize}
 Each baseline run is repeated 4 times to observe the reproducibility of the measurements.
 
-\begin{table}[ht]
-    \centering
-    \caption{List of baseline experiments and hyperparameters}
-    \begin{tabular}{ |p{3cm}|p{3cm}|p{3cm}|  }
-        \hline
-        \multicolumn{3}{|c|}{Baseline experiments} \\
-        \hline
-        Max Steps & Batch Size & Learning Rate     \\
-        \hline
-        10.000    & 32         & 0.001             \\
-        10.000    & 32         & 0.01              \\
-        10.000    & 32         & 0.1               \\
-        5000      & 64         & 0.001             \\
-        5000      & 64         & 0.01              \\
-        5000      & 64         & 0.1               \\
-        2500      & 128        & 0.001             \\
-        2500      & 128        & 0.01              \\
-        2500      & 128        & 0.1               \\
-        \hline
-    \end{tabular}
-    \label{table:baseline-experiments}
-\end{table}
+\begin{tabularx}{\linewidth}{ |p{3cm}|p{3cm}|p{3cm}|  }
+    \caption{List of baseline experiments and hyperparameters}\label{table:baseline-experiments} \\
+    \hline
+    \multicolumn{3}{|c|}{Baseline experiments}                                                   \\
+    \hline
+    Max Steps & Batch Size & Learning Rate                                                       \\
+    \hline
+    10.000    & 32         & 0.001                                                               \\
+    10.000    & 32         & 0.01                                                                \\
+    10.000    & 32         & 0.1                                                                 \\
+    5000      & 64         & 0.001                                                               \\
+    5000      & 64         & 0.01                                                                \\
+    5000      & 64         & 0.1                                                                 \\
+    2500      & 128        & 0.001                                                               \\
+    2500      & 128        & 0.01                                                                \\
+    2500      & 128        & 0.1                                                                 \\
+    \hline
+\end{tabularx}
 
-\clearpage
+\section{Not-Baseline Case}
 
-\section{Not-Base Case}
+To test and isolate the effects of using Hivemind for distributed training, each of our experiments changes only a single parameter at a time.
+For this, we can divide the set of non-baseline cases into different categories depending on which parameter has been changed.
+In every non-base case scenario described in this section, at least two nodes are involved in the training of the underlying NN model.
 
-All non-base case scenarios use Hivemind with at least two nodes involved in the training.
+\subsection{Target Batch Size}
+
+In Hivemind, the target batch size (TBS) is defined as the global number of samples that every peer has collectively processed during a collaborative run in the current \textit{Hivemind epoch}.
+A Hivemind epoch starts at 0 at the beginning of training and increases by one each time the TBS is reached.
+Let's describe a simple scenario:
+\begin{itemize}
+    \item two peers are collaboratively training a model;
+    \item each peer processes a batch size of 64;
+    \item each peer processes every batch at roughly the same speed;
+    \item the TBS is 256.
+\end{itemize}
+
 The model and the dataset remain the same across each run, and every peer has full access to the entire dataset through our CEPH cluster.
 We repeat the same experiments as the baseline runs, but alter the following Hivemind settings:
 \begin{itemize}
@@ -55,8 +64,8 @@ We repeat the same experiments as the baseline runs, but alter the following Hiv
     \item \texttt{Max Steps (MS)} (5000/2500/1250/625), depending on the number of peers and batch size, but always totaling 10.000 steps per experiment;
 \end{itemize}
 
-In total, we have executed 144 experiments to test Hivemind.
 The \autoref{table:hivemind-experiments} shows a list of all Hivemind experiments, with each one of them being also executed with LU=True and LU=False.
+In total, we have executed 144 experiments to test Hivemind.
 
 \begin{tabularx}{\linewidth}{ |c|c|c|c|c|c|  }
     \caption{List of Hivemind experiments and hyperparameters. Every experiment has been executed once, and every time with two peers.}\label{table:hivemind-experiments} \\
