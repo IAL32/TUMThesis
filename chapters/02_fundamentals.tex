@@ -79,46 +79,205 @@ At several stages during training, a neural network practitioner might want to v
 This is called the \textit{validation step}, and it is performed without changing the network's parameters or architecture.
 Validation steps are crucial to understanding if the changes made to a model are biased towards a specific set of inputs, an effect denominated \textit{underfitting}.
 
+\subsection{Gradient Accumulation}\label{sec:gradient-accumulation}
+
+When training neural networks, increasing batch size can sometimes lead to faster convergence \cite{Krizhevsky2014owt, goyal2017accurate, you2017scaling}.
+However, simply increasing the batch size during training does not scale very well, and can lead to memory issues or an inability to train at all.
+To help simulate bigger batches on a single device without incurring these issues, we can use a technique called \textit{gradient accumulation}.
+
+Algorithm~\ref{alg:standard-training} shows a simplified version of an algorithm used to train neural networks.
+A dataset consisting of a set of inputs $X$ and $Y$ labels, both with length $N$, is used as the input to the model, with a training loop supporting a single epoch.
+
+
+\begin{algorithm}
+    \caption{Standard training algorithm, PyTorch style}\label{alg:standard-training}
+    \begin{algorithmic}
+        \Require $N \geq 0$
+        \State $X \gets [...]$ \Comment{Inputs}
+        \State $Y \gets [...]$ \Comment{Labels}
+        \State $i \gets 0$
+        \While{$i < N$}
+        \State $prediction \gets model(X[i])$
+        \State $loss \gets $ criterion$(prediction, Y[i])$
+        \State $loss$.backward()
+        \State optimizer.step()
+        \State optimizer.zero\_grad()
+        \State $i \gets i + 1$
+        \EndWhile
+    \end{algorithmic}
+\end{algorithm}
+
+Algorithm~\ref{alg:grad-acc-training} shows a modified version of Algorithm~\ref{alg:standard-training} with gradient accumulation turned on.
+This technique introduces an accumulation variable ($ACC$) instructing how many batches should be accumulated within the optimizer's state.
+The $loss$ value is normalized with the value of $ACC$ to account for the effects of the accumulation.
+Once $ACC$ batches have been aggregated or when we have finished training, we apply the averaged gradients using the optimizer's function $optimizer.step()$, and reset its gradients to zero.
+
+\begin{algorithm}
+    \caption{Training with gradient accumulation, PyTorch style}\label{alg:grad-acc-training}
+    \begin{algorithmic}
+        \Require $N \geq 0$
+        \Require $ACC > 0$
+        \State $X \gets [...]$ \Comment{Inputs}
+        \State $Y \gets [...]$ \Comment{Labels}
+        \State $i \gets 0$
+        \While{$i < N$}
+        \State $prediction \gets model(X[i])$
+        \State $loss \gets $ criterion$(prediction, Y[i])$
+        \State $loss$.backward()
+        \State $loss \gets loss / ACC$
+        \If{$((i + 1) \mod{ACC} == 0)$ or $((i + 1) == N)$}
+        \State optimizer.step()
+        \State optimizer.zero\_grad()
+        \EndIf
+        \State $i \gets i + 1$
+        \EndWhile
+    \end{algorithmic}
+\end{algorithm}
+
 \section{Distributed Computing and Storage for Neural Networks}
 
+A distributed system is defined as a system where its components communicate with one another using messages.
+In computer science, the use of distributed systems has been a field of research for many years and has boomed with the advent of network communications.
+We often see distributed systems in complex applications such as the backend of a website or supercomputers.
+These systems are often composed of tens or hundreds of connected components that collectively produce one or more outcomes, such as web pages or complicated simulations.
+Using distributed techniques is essential for these complex applications, as the computational load and complexity required to run them, are simply too great for a single machine.
+
+The elevated number of components that make a distributed system can lead to several issues, such as an immense amount of requests to their local storage and extremely large files.
+For these reasons, it is necessary to use storage solutions that can handle these kinds of stress.
+Several distributed storage solutions have been developed and adopted over the past years, each of them excelling in different solutions and lacking in other areas.
+In general, choosing the right distributed storage software is crucial, as it can mean the difference between loading a dataset in seconds or minutes.
+
+Neural networks have quickly become too large in terms of memory and computationally expensive for a single host, thus needing distributed system techniques for training.
+
 \section{Distributed Training}
+Training a state-of-the-art neural network nowadays requires enormous amounts of time and effort, but especially resources and money.
+It is often impossible to train a model within the boundaries of a single piece of hardware, even with powerful specifications.
+This affects the speed at which neural networks are being developed and the ability to reproduce results from state-of-the-art models.
+
+One of the first and most notable examples of the results of this phenomenon is AlexNet \cite{alexnet2012}, in which the authors mentioned the need of using more than one GPU to train their model.
+This was 2010, and a little more than a decade later, to train the newest neural network models, practitioners, companies and research institutes need thousands of powerful GPUs.
+Distributed system techniques are used to be able to train these massive neural networks, creating the new term ``distributed training''.
+
+We can split distributed training into three macro categories:
+\begin{itemize}
+    \item \textbf{data parallelism}; this technique is conceptually the easiest and practically the most straightforward to implement.
+          In data parallelism, the same model is being trained simultaneously in several distinct machines, aggregating the parameter updates through operations like \textit{AllReduce}.
+    \item \textbf{tensor parallelism}; some operations in neural network training like matrix multiplications may need big amounts of memory and computational power to be executed.
+          With tensor parallelism, the operations themselves are split amongst several distinct machines, eventually aggregating their results into single or multiple ones, depending on the neural network structure.
+    \item \textbf{hybrid parallelism}; whenever we want to train very big neural network models, depending only on one technique between data parallelism and tensor parallelism is often not enough to achieve good enough performance.
+          In hybrid parallelism, the concepts and techniques of both data and tensor parallelism are combined.
+\end{itemize}
 
 \subsection{Bottleneck Analysis}
 
+By definition, a \textit{bottleneck} is a component of a system that negatively affects the output of such a system.
+An example is reading and writing data from one system to another, where the storage on both sides is a very fast SSD (Solid State Drive), and the transmission speed that the network allows is 56KB/s.
+In this scenario, even if both systems could theoretically reach unlimited speeds in both read and write operations, the performance of the system is ultimately limited by the low transmission speed.
+
+Most real-life cases however are not so simple, and the component or components that might act as the bottleneck of a system cannot as easily be detected as the previous example.
+It is necessary then to perform an analysis of all components of the system to establish its bottlenecks.
+
+Systems can be very complex, and performing an analysis of all of their components may become very difficult or impossible in practice.
+Thus, we have to analyze a limited number of components at a time, starting with the most significant.
+Systems can also be dynamic.
+In certain cases, bottlenecks can be found on a certain subset of components, and in other cases, other components act as bottlenecks instead.
+This requires constant monitoring of key metrics of these components and an understanding of which metrics might be relevant and why.
+
 \subsection{Metrics}
+
+Metrics represent the raw information about the behavior of a system and its component, collected via a monitoring system.
+In the previous paragraphs, we have presented a relatively simple example of how bottlenecks can be identified by their components and their characteristics.
+However, the final identification of the bottleneck was given to us by our pre-existing knowledge of the system and its specifications.
+In complex and evolving systems, having pre-existing knowledge about their components is not always possible.
+
+It is possible to gather metrics about information that is available via common interfaces such as operating system hooks and methods.
+We may track metrics about the host system such as:
+\begin{itemize}
+    \item \textbf{disk space utilization}; in addition to the amount of storage used over time, we can also track read and write operations in terms of speed.
+    \item \textbf{cpu utilization}; can provide insights about possible efficiency issues within the software by highlighting peaks in CPU utilization.
+    \item \textbf{network utilization}; distributed systems in particular may benefit from tracking metrics about network utilization, as it is one of their main components.
+    \item \textbf{memory utilization}; sometimes processes do not perform proper cleanup of their resources, leading to memory leaks, slowdowns and errors.
+\end{itemize}
 
 \section{Hivemind}
 Hivemind is a framework that aims to enable decentralized training using several techniques, such as decentralized parameter averaging or decentralized mixture-of-experts.
+The initial concept of developing Hivemind was to enable neural network training outside the boundaries of an institution's internal network and resources, such as universities and small-medium companies.
+These institutions do not necessarily have access to the latest technologies and hardware to keep up with big companies' large budgets.
+By using Hivemind, it may be possible to collectively contribute to training neural networks across different institutions, unlocking new areas and possibilities of research.
+
 In this section, we will introduce on a high level the main components and settings that we will use throughout the thesis.
 
 \subsection{Decentralized Hash Table (DHT)}
 A decentralized hash table or DHT is a system that provides a set of features similar to a hash table in a distributed environment.
 Because Hivemind focuses on providing a training environment for nodes across the internet, a DHT is a beneficial part of the architecture because of its fault-tolerant properties.
 Under the hood, Hivemind uses a DHT to track the presence or dropout of peers during training and to allow a direct exchange of data between them.
+An example of how this type of communication works is given in \autoref{fig:dht-communication}.
+
+\begin{figure}[h]
+    \centering
+    \caption{Nodes in a Peer-to-Peer network exchanging data directly with one another. Every node has its own internal DHT which is kept in sync with other peers.}
+    \label{fig:dht-communication}
+    \includegraphics[width=0.5 \textwidth]{./figures/02_dht-communication.pdf}
+\end{figure}
 
 \subsection{Optimizer}
 One of the main components of Hivemind is the Hivemind Optimizer, which wraps around any other implementation of a \texttt{torch.optim.Optimizer}.
 Therefore, the Hivemind Optimizer can be used as a drop-in replacement in regular training operations.
-With default settings and with no other peer, the Hivemind optimizer is designed to perform exactly as the underlying \texttt{torch.optim.Optimizer}.
+With default settings and with no other peer, the Hivemind optimizer is designed to perform exactly as the underlying \texttt{torch.optim.Optimizer} class.
+There are several options for tuning the Hivemind Optimizer, which affect how distributed training is performed across participating peers in a training run.
+We will briefly describe some of the settings that we focused on during this thesis.
 
 \subsubsection{Target Batch Size}
 
-In Hivemind, the target batch size (TBS) is defined as the global number of samples that every peer has collectively processed during a collaborative run in the current Hivemind epoch or $HE$.
-A Hivemind epoch does not necessarily correspond to a full pass over the training data.
-In Hivemind, the HE starts at 0 at the beginning of training and increases by one by each peer every time the TBS is reached.
-Let's describe a simple scenario:
+The target batch size (TBS) is defined in the Hivemind Optimizer as the global number of samples that every peer has collectively processed during a collaborative run in the current Hivemind epoch.
+A Hivemind epoch, which we will call $HE$, does not necessarily correspond to a full pass over the training data and can be used to synchronize advanced training features like optimizer schedulers.
+The HE starts at 0 at the beginning of training and increases by one every time that all participating peers reportedly finished processing $TBS$ since the last $HE$.
+
+Understanding the concept of HE is crucial, so let us describe a simple scenario to aid with this task:
 \begin{itemize}
     \item two peers are collaboratively training a model;
     \item the TBS is 256;
+    \item the \texttt{use\_local\_updates} setting is set to \texttt{True} (see next section for a definition of this setting);
     \item each peer processes a batch size of 64;
     \item each peer processes every batch at roughly the same speed;
     \item each peer starts training at the same time.
 \end{itemize}
-In this scenario, after one step the number of globally accumulated samples is equal to $64+64=128$, as each peer has processed the same amount of samples in the same amount of time.
+After one step, the number of globally accumulated samples is equal to $64+64=128$, as each peer has processed the same amount of samples in the same amount of time.
 After another step, the accumulated samples are equal to $128+(64+64)=256$.
-Because the TBS is now 256, now the Hivemind optimizer starts an averaging round between all connected peers and when done, executes the optimizer step.
-After the averaging round ends, each peer locally performs $HE=HE+1$.
+Because the total number of accumulated samples is now 256 and it is equal to TBS, each peer can now initiate an averaging round with all other participating peers.
+What happens right before and after averaging depends on the \texttt{use\_local\_updates} setting.
 
 \subsubsection{Local Updates}
 
+Training neural networks with larger batches has been proven to be beneficial in some cases \cite{Krizhevsky2014owt, goyal2017accurate, you2017scaling}.
+Thus, practitioners may want to be able to accumulate gradients either locally, in a distributed manner, or a combination of both.
+Hivemind's implementation of distributed training extends the concept of gradient accumulation, previously presented in Subsection~\ref{sec:gradient-accumulation}, by introducing the \texttt{use\_local\_updates} settings for \texttt{hivemind.Optimizer}.
 
+The setting has two modes:
+\begin{itemize}
+    \item \textbf{activated}; after every local training step, the Hivemind optimizer applies the gradients to the model.
+          At the next HE, the final stage of the Optimizer starts.
+          A simplified flow of how Hivemind implements this mode is illustrated in \autoref{fig:use-local-updates_true}.
+    \item \textbf{deactivated}; after every local training step, gradients are accumulated instead of being applied to the model's parameters.
+          After $ACC$ steps, the optimizer is invoked and internally stores the accumulated gradients.
+          At the next HE, the Optimizer averages the accumulated gradients with all participating peers.
+          The final stage of the Optimizer then starts, which averages the model and optimizer state with other peers.
+          A simplified flow of how Hivemind implements this mode is illustrated in \autoref{fig:use-local-updates_false}.
+\end{itemize}
+
+\begin{figure}[h]
+    \centering
+    \caption{Nodes in a Peer-to-Peer network exchanging data directly with one another. Every node has its own internal DHT which is kept in sync with other peers.}
+    \label{fig:use-local-updates_true}
+    \includegraphics[width=0.9 \textwidth]{./figures/02_use-local-updates_true.pdf}
+\end{figure}
+
+\begin{figure}[h]
+    \centering
+    \caption{Nodes in a Peer-to-Peer network exchanging data directly with one another. Every node has its own internal DHT which is kept in sync with other peers.}
+    \label{fig:use-local-updates_false}
+    \includegraphics[width=0.8 \textwidth]{./figures/02_use-local-updates_false.pdf}
+\end{figure}
+
+
+In this thesis, we will discuss the effects of enabling or disabling this setting on training.

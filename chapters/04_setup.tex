@@ -1,13 +1,161 @@
 \chapter{Setup}\label{chapter:setup}
 
-In this chapter, we describe the requirements for building a suitable environment to run experiments using Hivemind. We further
-present a high-level overview of our implementation with a simplified visualization. Finally, we describe in detail the technologies
-and resources that we have used to build such as the environment (CEPH, OpenNebula, description of the machines), and how we provision them (Terraform, Ansible, ...).
+In this chapter, we briefly describe the technologies and resources that we have used to run our experiments, as well as how they were set up and provisioned.
+We further describe our experimental setup and the hyperparameters that we chose to experiment on.
+Finally, we present a high-level overview of our implementation with a simplified visualization.
 
 \section{Experimental Setup}
 
-\section{System's Architecture}
+All our experiments are trained using the model ResNet18 \cite{he2015deep} on Imagenet-1k, with $1.281.167$ items and $1000$ classes \cite{deng2009imagenet}.
+The optimizer function of choice is standard stochastic gradient descent (SGD) with three possible learning rate settings ($0.1, 0.01, 0.001$) and a fixed momentum value of $0.9$.
 
-The scope of this thesis is to provide insights about using Hivemind in a controlled environment, such as a cluster of devices that a university, company or institution may leave otherwise unused.
+To support our training experiments we used a cluster provided by the department of Decentralized Information Systems and Data Management, from the Technische Universität München.
+This cluster is managed by OpenNebula, and gives us access to several machines with Intel Xeon v3 8x@2.4 Ghz, 80 GB DDR4 RAM and Ubuntu 20.04 image.
+As the storage backend, we use a CEPH cluster backed with hard disks, with 10 GB/s up and downlink.
+We repeat every baseline experiment four times, and every hivemind experiment only one time.
+All experiments use Python 3.8.10, and Hivemind with the commit hash \texttt{de6b4f5ae835a633ca7876209f2929d069e988f0}
+\footnote{We chose this specific commit because we identified some issues with training on our setup from the next commit onwards}.
+We used the Infrastructure-as-Code (IaC) tool Terraform together with the OpenNebula provider 1.0.1
+\footnote{\href{https://registry.terraform.io/providers/OpenNebula/opennebula/1.0.1}{https://registry.terraform.io/providers/OpenNebula/opennebula/1.0.1}}
+to spin up several virtual machines matching our needs.
+
+The types of virtual machines that we used for this thesis are two:
+\begin{itemize}
+    \item \textbf{messengers}; helps with establishing the initial connection between every bee.
+          Does not produce or consume any data besides the initial connection step.
+    \item \textbf{bees}; machines that participate in training a model.
+          Bees can be executed with Hivemind turned on or off, the latter being the default setting when running baseline experiments.
+          When executing with Hivemind on, bees connect to a single messenger machine for initializing their internal DHT and then proceed to communicate with one another for the rest of the experiments.
+\end{itemize}
+
+Every virtual machine spawned has 10GB of RAM and 30GB of internal disk space backed up by SSD, and they are all connected to the same CEPH storage backend presented earlier.
+Messenger machines always have one vCPU assigned to them by the underlying OpenNebula KVM.
+Depending on the experiment, bees can either be assigned with 16vCPUs, 8vCPUs, 4vCPUs, 2vCPUs or 1vCPUs.
+
+It is worth noting that because of the nature of how a KVM assigns virtual CPUs to a virtual machine, the machines with 1vCPU may occasionally use more than one thread in case of long I/O waiting times.
+This causes metrics such as CPU utilization to go over 100\%, although at all times always one core is utilized by the virtual machine.
+With our current setup, there is no way to go around this limitation.
+
+To log our metrics, we decided to use the tool Weights and Biases (\textit{wandb}) \footnote{\href{https://wandb.ai/}{https://wandb.ai/}}.
+The impact of this tool on the logged metrics on Hivemind experiments is later considered when compared to baseline experiments.
+
+\section{Metrics}
+We logged key metrics from the host system of every machine using the Python tool \texttt{psutil}, which gives us access to the metrics listed in \autoref{table:key-host-metrics}.
+Not every metric will be used and analyzed throughout this thesis.
+
+\small
+\begin{tabularx}{\linewidth}{ |p{8cm}|p{6cm}| }
+    \caption{
+        List of key host metrics logged using \texttt{psutil}.
+    }\label{table:key-host-metrics}                                                                                                       \\
+    \hline
+    Metric key                                              & Description                                                                 \\
+    \hline
+    \texttt{bandwidth/disk\_read\_sys\_bandwidth\_mbs}      & bandwidth used by local disk read operations                                \\
+    \hline
+    \texttt{bandwidth/disk\_write\_sys\_bandwidth\_mbs}     & bandwidth used by local disk write operations                               \\
+    \hline
+    \texttt{bandwidth/net\_sent\_sys\_bandwidth\_mbs}       & bandwidth used by network send operations                                   \\
+    \hline
+    \texttt{bandwidth/net\_recv\_sys\_bandwidth\_mbs}       & bandwidth used by network receive operations                                \\
+    \hline
+    \texttt{cpu/interrupts/ctx\_switches\_count}            & number of context switches that occurred since the last call                \\
+    \hline
+    \texttt{cpu/interrupts/interrupts\_count}               & number of CPU interrupts that occurred since the last call                  \\
+    \hline
+    \texttt{cpu/interrupts/soft\_interrupts\_count}         & number of soft CPU interrupts that occurred since the last call             \\
+    \hline
+    \texttt{cpu/load/avg\_sys\_load\_one\_min\_percent}     & average CPU load across the last minute                                     \\
+    \hline
+    \texttt{cpu/load/avg\_sys\_load\_five\_min\_percent}    & average CPU load across the last five minutes                               \\
+    \hline
+    \texttt{cpu/load/avg\_sys\_load\_fifteen\_min\_percent} & average CPU load across the last fifteen minutes                            \\
+    \hline
+    \texttt{cpu/logical\_core\_count}                       & number of logical cores available to the current host                       \\
+    \hline
+    \texttt{memory/total\_memory\_sys\_mb}                  & total amount of memory in megabytes available to the current host           \\
+    \hline
+    \texttt{memory/available\_memory\_sys\_mb}              & amount of unused memory in megabytes since the last call                    \\
+    \hline
+    \texttt{memory/used\_memory\_sys\_mb}                   & amount of used memory in megabytes since the last call                      \\
+    \hline
+    \texttt{memory/used\_memory\_sys\_percent}              & percent of memory used since the last call                                  \\
+    \hline
+    \texttt{process/voluntary\_proc\_ctx\_switches}         & number of voluntary process context switches since the last call            \\
+    \hline
+    \texttt{process/involuntary\_proc\_ctx\_switches}       & number of involuntary process context switches since the last call          \\
+    \hline
+    \texttt{process/memory/resident\_set\_size\_proc\_mb}   & resident set size in megabytes of the current process since the last call   \\
+    \hline
+    \texttt{process/memory/virtual\_memory\_size\_proc\_mb} & virtual memory size in megabytes of the current process since the last call \\
+    \hline
+    \texttt{process/memory/shared\_memory\_proc\_mb}        & shared memory size in megabytes of the current process since the last call  \\
+    \hline
+    \texttt{process/memory/text\_resident\_set\_proc\_mb}   & memory devoted to executable code in megabytes since the last call          \\
+    \hline
+    \texttt{process/memory/data\_resident\_set\_proc\_mb}   & physical memory devoted to other than code in megabytes since the last call \\
+    \hline
+    \texttt{process/memory/lib\_memory\_proc\_mb}           & memory used by shared libraries in megabytes since the last call            \\
+    \hline
+    \texttt{process/memory/dirty\_pages\_proc\_count}       & number of dirty pages since the last call                                   \\
+    \hline
+    \texttt{disk/counter/disk\_read\_sys\_count}            & how often were reads performed since the last call                          \\
+    \hline
+    \texttt{disk/counter/disk\_write\_sys\_count}           & how often were writes performed since the last call                         \\
+    \hline
+    \texttt{disk/disk\_read\_sys\_mb}                       & how much was read in megabytes since the last call                          \\
+    \hline
+    \texttt{disk/disk\_write\_sys\_mb}                      & how much was written in megabytes since the last call                       \\
+    \hline
+    \texttt{disk/time/disk\_read\_time\_sys\_s}             & how much time was used to read in seconds since the last call               \\
+    \hline
+    \texttt{disk/time/disk\_write\_time\_sys\_s}            & how much time was used to write in seconds since the last call              \\
+    \hline
+    \texttt{disk/time/disk\_busy\_time\_sys\_s}             & how much time was used for I/O operations in seconds since the last call    \\
+    \hline
+\end{tabularx}
+\normalsize
+
+To monitor the effects of Hivemind on training, we also log at the end of every training step the metrics listed in \autoref{table:key-training-metrics}
+
+\small
+\begin{tabularx}{\linewidth}{ |p{5cm}|p{8cm}| }
+    \caption{
+        List of key host metrics logged using \texttt{psutil}.
+    }\label{table:key-training-metrics}                                                                                                      \\
+    \hline
+    Metric key                              & Description                                                                                    \\
+    \hline
+    \texttt{train/loss}                     & Loss reached in the current step                                                               \\
+    \hline
+    \texttt{train/accuracy}                 & Accuracy reached in the current step                                                           \\
+    \hline
+    \texttt{train/samples\_ps}              & number of samples processed per second passed from the start of the current step until the end \\
+    \hline
+    \texttt{train/data\_load\_s}            & time taken to load the current step batch in seconds                                           \\
+    \hline
+    \texttt{train/model\_forward\_s}        & time taken to perform the forward pass in seconds                                              \\
+    \hline
+    \texttt{train/model\_backward\_only\_s} & time taken to perform the backward pass in seconds                                             \\
+    \hline
+    \texttt{train/model\_opt\_s}            & time taken to perform the optimizer step in seconds                                            \\
+    \hline
+    \texttt{train/step}                     & current step number                                                                            \\
+    \hline
+\end{tabularx}
+\normalsize
 
 \section{Implementation}
+
+To perform the experiments, we developed a custom solution that automates most manual steps using a combination of Ansible playbooks and bash scripts.
+
+When setting up a new experiment, the following steps are performed:
+\begin{enumerate}
+    \item copy configuration to all participating machines; this step includes the messenger machine, as well as the bee machines.
+          This is to ensure that all machines are using the same code.
+    \item (only for Hivemind) start the messenger machine;
+          the messenger acts as the first point of contact for all the machines, providing a common endpoint that they can connect to for establishing the initial connection.
+    \item run bees; there are two cases for this step:
+          a) if step 2 was performed, bees are running using Hivemind. All bees run with the parameter \texttt{initial\_peers} set to the messenger's DHT address.
+          b) otherwise, all bees are performing a baseline experiment, and no Hivemind feature is enabled.
+\end{enumerate}

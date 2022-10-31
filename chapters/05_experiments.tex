@@ -1,40 +1,62 @@
 \chapter{Experiments}\label{chapter:experiments}
 
-In this chapter, we showcase the basic setup of our experiments.
-To preserve a comparison consistency between each experiment run, the number of steps depends on two factors: the number of peers involved in the training, and the batch size.
+Having access to more powerful hardware is a challenge for several reasons that may be outside of our control.
+In the past years, there was a worldwide shortage of microchips that negatively impacted the ability to purchase state-of-the-art hardware such as CPUs and GPUs.
+Thus, we would like to understand the effects of running distributed frameworks such as Hivemind on less powerful, older hardware.
+
+To provide a fair comparison between experiments not running Hivemind and experiments that do, our experiments always have the same amount of vCPUs.
+Finally, every experiment processes the same number of samples across all the participating peers, and the sum of processed samples may never be greater than 320,000.
+
+An exception to this rule is made for experiments with an odd number of samples per peer.
+For example, a run with batch size $128$ and 8 peers should result in 312.5 samples per peer, which is not possible.
+In these cases, the number of samples per peer is rounded up to the nearest digit to form an even number.
+This chapter describes the basic setup of our experiments.
 
 \section{Base Case}
-The most basic setup for training a neural network is composed of a single device with access to powerful computing hardware, such as a CPU, GPU or TPU, where the model is trained on.
-In most cases, using a single computing device is infeasible, and parallelization techniques are employed to speed up training or to train bigger models that do not fit in the memory of a single device.
-For our purposes, this type of training can be seen as training on a single device.
 
-In this thesis, we define the baseline for our experiments as training ResNet18 on a single machine with 16 vCPUs.
-We cover the following training hyperparameters:
+To preserve a comparison consistency between each experiment run, the number of steps depends on two factors: the number of peers involved in the training, and the batch size.
+We designed our baseline experiments in a grid search, covering the following training hyperparameters:
 \begin{itemize}
     \item Batch Size (BS): 32, 64 and 128;
     \item Learning Rate (LR): 0.001, 0.01 and 0.1;
     \item Max Steps (MS): 10.000 for BS=32, 5000 for BS=64, 2500 for BS=128.
+    \item Gradient Accumulation Steps (GAS): 1 (no accumulation), 2 (with accumulation up to two steps)
 \end{itemize}
-Each baseline run is repeated 4 times to observe the reproducibility of the measurements.
 
-\begin{tabularx}{\linewidth}{ |p{3cm}|p{3cm}|p{3cm}|  }
-    \caption{List of baseline experiments and hyperparameters}\label{table:baseline-experiments} \\
+\begin{tabularx}{\linewidth}{ |p{3cm}|p{3cm}|p{3cm}|p{3cm}|  }
+    \caption{
+        List of baseline experiments and hyperparameters
+    }\label{table:baseline-experiments}                       \\
     \hline
-    \multicolumn{3}{|c|}{Baseline experiments}                                                   \\
+    \multicolumn{4}{|c|}{Baseline experiments}                \\
     \hline
-    Max Steps & Batch Size & Learning Rate                                                       \\
+    Max Steps & Batch Size & Learning Rate & Grad. Acc. Steps \\
     \hline
-    10.000    & 32         & 0.001                                                               \\
-    10.000    & 32         & 0.01                                                                \\
-    10.000    & 32         & 0.1                                                                 \\
-    5000      & 64         & 0.001                                                               \\
-    5000      & 64         & 0.01                                                                \\
-    5000      & 64         & 0.1                                                                 \\
-    2500      & 128        & 0.001                                                               \\
-    2500      & 128        & 0.01                                                                \\
-    2500      & 128        & 0.1                                                                 \\
+    10.000    & 32         & 0.001         & 1                \\
+    10.000    & 32         & 0.01          & 1                \\
+    10.000    & 32         & 0.1           & 1                \\
+    5000      & 64         & 0.001         & 1                \\
+    5000      & 64         & 0.01          & 1                \\
+    5000      & 64         & 0.1           & 1                \\
+    2500      & 128        & 0.001         & 1                \\
+    2500      & 128        & 0.01          & 1                \\
+    2500      & 128        & 0.1           & 1                \\
+    \hline
+    10.000    & 32         & 0.001         & 2                \\
+    10.000    & 32         & 0.01          & 2                \\
+    10.000    & 32         & 0.1           & 2                \\
+    5000      & 64         & 0.001         & 2                \\
+    5000      & 64         & 0.01          & 2                \\
+    5000      & 64         & 0.1           & 2                \\
+    2500      & 128        & 0.001         & 2                \\
+    2500      & 128        & 0.01          & 2                \\
+    2500      & 128        & 0.1           & 2                \\
     \hline
 \end{tabularx}
+
+The machines used for baseline runs have 16vCPUs and each experiment is repeated 4 times to observe the reproducibility of the measurements.
+Hivemind features such as the DHT and the Optimizer wrapper are completely deactivated for these runs.
+\autoref{table:baseline-experiments} lists all the 18 combinations of experiments that we cover in this thesis.
 
 \section{Not-Baseline Case}
 
@@ -42,133 +64,45 @@ To test and isolate the effects of using Hivemind for distributed training, each
 For this, we can divide the set of non-baseline cases into different categories depending on which parameter has been changed.
 In every non-base case scenario described in this section, at least two nodes are involved in the training of the underlying NN model.
 
-\subsection{Target Batch Size}
-
-In Hivemind, the target batch size (TBS) is defined as the global number of samples that every peer has collectively processed during a collaborative run in the current \textit{Hivemind epoch}.
-A Hivemind epoch starts at 0 at the beginning of training and increases by one each time the TBS is reached.
-Let's describe a simple scenario:
-\begin{itemize}
-    \item two peers are collaboratively training a model;
-    \item each peer processes a batch size of 64;
-    \item each peer processes every batch at roughly the same speed;
-    \item the TBS is 256.
-\end{itemize}
-
 The model and the dataset remain the same across each run, and every peer has full access to the entire dataset through our CEPH cluster.
-We repeat the same experiments as the baseline runs, but alter the following Hivemind settings:
+We repeat the same experiments as the baseline runs, and further explore the following Hivemind settings and questions:
 \begin{itemize}
-    \item \texttt{Use Local Updates (LU)} (T/F);
-    \item \texttt{Number of Peers (NoP)} (2/4/8/16);
-    \item \texttt{Target Batch Size (TBS)} (10.000/5000/2500/1250/625);
-    \item \texttt{vCPUs} (1/2/4/8);
-    \item \texttt{Max Steps (MS)} (5000/2500/1250/625), depending on the number of peers and batch size, but always totaling 10.000 steps per experiment;
+    \item \textbf{Number of Peers (NoP)}: 2, 4, 8 and 16; for loads like the experiment that we are running, is communication between many nodes a bottleneck?
+    \item \textbf{Number of logical cores per node (vCPUs)}: 1, 2, 4, 8 and 16; using the same amount of computational power across many nodes, do we get to a target loss faster?
+    \item \textbf{Target Batch Size (TBS)}: 10.000, 5000, 2500, 1250 and 625; using smaller target batch size, do we get faster to the target loss?
+    \item \textbf{Max Steps (MS)}: 5000, 2500, 1250 and 625; this parameter depends on the number of peers and batch size, but the total is always 10.000 steps per experiment;
+    \item \textbf{Use Local Updates (LU)}: \texttt{True} or \texttt{False}; Hivemind allows us to control when to schedule gradient, model and parameter averaging. How does this setting affect training?
 \end{itemize}
 
-The \autoref{table:hivemind-experiments} shows a list of all Hivemind experiments, with each one of them being also executed with LU=True and LU=False.
-In total, we have executed 144 experiments to test Hivemind.
+The \autoref{table:hivemind-experiments} shows a list of the combination of experiments that we performed to test Hivemind.
+In total, we have executed 288 experiments for this thesis.
 
-\begin{tabularx}{\linewidth}{ |c|c|c|c|c|c|  }
-    \caption{List of Hivemind experiments and hyperparameters. Every experiment has been executed once, and every time with two peers.}\label{table:hivemind-experiments} \\
+\begin{tabularx}{\linewidth}{ |c|c|c|c|c|c|c|c|  }
+    \caption{
+        List of Hivemind experiments and hyperparameters.
+        Every experiment has been executed once, and every time with at least two peers.
+    }\label{table:hivemind-experiments}                                                      \\
     \hline
-    \multicolumn{6}{|c|}{Hivemind experiments}                                                                                                                            \\
+    \multicolumn{8}{|c|}{Experiments testing for the effect of target batch size (TBS)}      \\
     \hline
-    MS   & NoP & vCPUs & BS  & LR    & TBS                                                                                                                                \\
+    MS   & NoP & vCPUs & BS  & LR               & TBS                           & GAS & LU   \\
     \hline
-    5000 & 2   & 8     & 32  & 0.001 & 10.000                                                                                                                             \\
-    5000 & 2   & 8     & 32  & 0.001 & 5000                                                                                                                               \\
-    5000 & 2   & 8     & 32  & 0.001 & 2500                                                                                                                               \\
-    5000 & 2   & 8     & 32  & 0.001 & 1250                                                                                                                               \\
-    5000 & 2   & 8     & 32  & 0.001 & 625                                                                                                                                \\
-    5000 & 2   & 8     & 32  & 0.01  & 10.000                                                                                                                             \\
-    5000 & 2   & 8     & 32  & 0.01  & 5000                                                                                                                               \\
-    5000 & 2   & 8     & 32  & 0.01  & 2500                                                                                                                               \\
-    5000 & 2   & 8     & 32  & 0.01  & 1250                                                                                                                               \\
-    5000 & 2   & 8     & 32  & 0.01  & 625                                                                                                                                \\
-    5000 & 2   & 8     & 32  & 0.1   & 10.000                                                                                                                             \\
-    5000 & 2   & 8     & 32  & 0.1   & 5000                                                                                                                               \\
-    5000 & 2   & 8     & 32  & 0.1   & 2500                                                                                                                               \\
-    5000 & 2   & 8     & 32  & 0.1   & 1250                                                                                                                               \\
-    5000 & 2   & 8     & 32  & 0.1   & 625                                                                                                                                \\
-    2500 & 4   & 4     & 32  & 0.001 & 1250                                                                                                                               \\
-    1250 & 8   & 2     & 32  & 0.001 & 1250                                                                                                                               \\
-    625  & 16  & 1     & 32  & 0.001 & 1250                                                                                                                               \\
-    2500 & 4   & 4     & 32  & 0.01  & 1250                                                                                                                               \\
-    1250 & 8   & 2     & 32  & 0.01  & 1250                                                                                                                               \\
-    625  & 16  & 1     & 32  & 0.01  & 1250                                                                                                                               \\
-    2500 & 4   & 4     & 32  & 0.1   & 1250                                                                                                                               \\
-    1250 & 8   & 2     & 32  & 0.1   & 1250                                                                                                                               \\
-    625  & 16  & 1     & 32  & 0.1   & 1250                                                                                                                               \\
+    5000 & 2   & 8     & 32  & 0.001, 0.01, 0.1 & 10.000, 5000, 2500, 1250, 625 & 1,2 & T, F \\
+    2500 & 2   & 8     & 64  & 0.001, 0.01, 0.1 & 10.000, 5000, 2500, 1250, 625 & 1,2 & T, F \\
+    1250 & 2   & 8     & 128 & 0.001, 0.01, 0.1 & 10.000, 5000, 2500, 1250, 625 & 1,2 & T, F \\
     \hline
-    2500 & 2   & 8     & 64  & 0.001 & 10.000                                                                                                                             \\
-    2500 & 2   & 8     & 64  & 0.001 & 5000                                                                                                                               \\
-    2500 & 2   & 8     & 64  & 0.001 & 2500                                                                                                                               \\
-    2500 & 2   & 8     & 64  & 0.001 & 1250                                                                                                                               \\
-    2500 & 2   & 8     & 64  & 0.001 & 625                                                                                                                                \\
-    2500 & 2   & 8     & 64  & 0.01  & 10.000                                                                                                                             \\
-    2500 & 2   & 8     & 64  & 0.01  & 5000                                                                                                                               \\
-    2500 & 2   & 8     & 64  & 0.01  & 2500                                                                                                                               \\
-    2500 & 2   & 8     & 64  & 0.01  & 1250                                                                                                                               \\
-    2500 & 2   & 8     & 64  & 0.01  & 625                                                                                                                                \\
-    2500 & 2   & 8     & 64  & 0.1   & 10.000                                                                                                                             \\
-    2500 & 2   & 8     & 64  & 0.1   & 5000                                                                                                                               \\
-    2500 & 2   & 8     & 64  & 0.1   & 2500                                                                                                                               \\
-    2500 & 2   & 8     & 64  & 0.1   & 1250                                                                                                                               \\
-    2500 & 2   & 8     & 64  & 0.1   & 625                                                                                                                                \\
-    2500 & 4   & 4     & 64  & 0.001 & 1250                                                                                                                               \\
-    1250 & 8   & 2     & 64  & 0.001 & 1250                                                                                                                               \\
-    625  & 16  & 1     & 64  & 0.001 & 1250                                                                                                                               \\
-    2500 & 4   & 4     & 64  & 0.01  & 1250                                                                                                                               \\
-    1250 & 8   & 2     & 64  & 0.01  & 1250                                                                                                                               \\
-    625  & 16  & 1     & 64  & 0.01  & 1250                                                                                                                               \\
-    2500 & 4   & 4     & 64  & 0.1   & 1250                                                                                                                               \\
-    1250 & 8   & 2     & 64  & 0.1   & 1250                                                                                                                               \\
-    625  & 16  & 1     & 64  & 0.1   & 1250                                                                                                                               \\
+    \multicolumn{8}{|c|}{Experiments testing for the effect of the number of peers (NoP)}    \\
     \hline
-    1250 & 2   & 8     & 128 & 0.001 & 10.000                                                                                                                             \\
-    1250 & 2   & 8     & 128 & 0.001 & 5000                                                                                                                               \\
-    1250 & 2   & 8     & 128 & 0.001 & 2500                                                                                                                               \\
-    1250 & 2   & 8     & 128 & 0.001 & 1250                                                                                                                               \\
-    1250 & 2   & 8     & 128 & 0.001 & 625                                                                                                                                \\
-    1250 & 2   & 8     & 128 & 0.01  & 10.000                                                                                                                             \\
-    1250 & 2   & 8     & 128 & 0.01  & 5000                                                                                                                               \\
-    1250 & 2   & 8     & 128 & 0.01  & 2500                                                                                                                               \\
-    1250 & 2   & 8     & 128 & 0.01  & 1250                                                                                                                               \\
-    1250 & 2   & 8     & 128 & 0.01  & 625                                                                                                                                \\
-    1250 & 2   & 8     & 128 & 0.1   & 10.000                                                                                                                             \\
-    1250 & 2   & 8     & 128 & 0.1   & 5000                                                                                                                               \\
-    1250 & 2   & 8     & 128 & 0.1   & 2500                                                                                                                               \\
-    1250 & 2   & 8     & 128 & 0.1   & 1250                                                                                                                               \\
-    1250 & 2   & 8     & 128 & 0.1   & 625                                                                                                                                \\
-    2500 & 4   & 4     & 128 & 0.001 & 1250                                                                                                                               \\
-    1250 & 8   & 2     & 128 & 0.001 & 1250                                                                                                                               \\
-    625  & 16  & 1     & 128 & 0.001 & 1250                                                                                                                               \\
-    2500 & 4   & 4     & 128 & 0.01  & 1250                                                                                                                               \\
-    1250 & 8   & 2     & 128 & 0.01  & 1250                                                                                                                               \\
-    625  & 16  & 1     & 128 & 0.01  & 1250                                                                                                                               \\
-    2500 & 4   & 4     & 128 & 0.1   & 1250                                                                                                                               \\
-    1250 & 8   & 2     & 128 & 0.1   & 1250                                                                                                                               \\
-    625  & 16  & 1     & 128 & 0.1   & 1250                                                                                                                               \\
+    MS   & NoP & vCPUs & BS  & LR               & TBS                           & GAS & LU   \\
+    \hline
+    2500 & 4   & 4     & 32  & 0.001, 0.01, 0.1 & 1250                          & 1,2 & T, F \\
+    1250 & 8   & 2     & 32  & 0.001, 0.01, 0.1 & 1250                          & 1,2 & T, F \\
+    625  & 16  & 1     & 32  & 0.001, 0.01, 0.1 & 1250                          & 1,2 & T, F \\
+    1250 & 4   & 4     & 64  & 0.001, 0.01, 0.1 & 1250                          & 1,2 & T, F \\
+    625  & 8   & 2     & 64  & 0.001, 0.01, 0.1 & 1250                          & 1,2 & T, F \\
+    313  & 16  & 1     & 64  & 0.001, 0.01, 0.1 & 1250                          & 1,2 & T, F \\
+    625  & 4   & 4     & 128 & 0.001, 0.01, 0.1 & 1250                          & 1,2 & T, F \\
+    313  & 8   & 2     & 128 & 0.001, 0.01, 0.1 & 1250                          & 1,2 & T, F \\
+    157  & 16  & 1     & 128 & 0.001, 0.01, 0.1 & 1250                          & 1,2 & T, F \\
     \hline
 \end{tabularx}
-
-% template for future tables
-\begin{table}[h]
-    \centering
-    \caption{Something cool about this table}
-    \begin{tabular}{ |p{3cm}||p{3cm}|p{3cm}|p{3cm}|  }
-        \hline
-        \multicolumn{4}{|c|}{Country List}                                                 \\
-        \hline
-        Country Name or Area Name & ISO ALPHA 2 Code & ISO ALPHA 3 Code & ISO numeric Code \\
-        \hline
-        Afghanistan               & AF               & AFG              & 004              \\
-        Aland Islands             & AX               & ALA              & 248              \\
-        Albania                   & AL               & ALB              & 008              \\
-        Algeria                   & DZ               & DZA              & 012              \\
-        American Samoa            & AS               & ASM              & 016              \\
-        Andorra                   & AD               & AND              & 020              \\
-        Angola                    & AO               & AGO              & 024              \\
-        \hline
-    \end{tabular}
-    \label{table:effintable}
-\end{table}

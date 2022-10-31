@@ -3,3 +3,5 @@
 /logos/*.pdf
 indent.log
 venv/
+.env
+viz/**/*.csv
