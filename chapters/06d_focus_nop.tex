@@ -1,0 +1,49 @@
+\section{Focus on effects of the number of peers and vCPUs per peer}
+
+We have seen how different Hivemind configurations can affect training on two peers.
+However, it might be useful to dedicate more than two machines to train deep neural networks.
+In this section, we answer the following question: what are the effects of scaling up the number of machines when using Hivemind?
+
+The frequency at which peers average their model state is directly proportional to the number of peers, the throughput per second of each peer and the TBS.
+In turn, the throughput per second is affected by several factors such as the BS, computational power of the node and wait times for I/O operations.
+
+It might be difficult to isolate the effects of introducing more nodes from scaling the target batch size.
+Thus, we decided to fix the target batch size to 1250 for this set of experiments and alter TBS, BS, LR, GAS and LU.
+
+Similar to the Hivemind runs with 2 peers and 8vCPUs presented in \autoref{sec:focus-effect-bs-lr-tbs}, \autoref{fig:runtime-decrease_scale-nop} shows
+
+\begin{figure}[h]
+    \centering
+    % temporary
+    \foreach \gas in {1, 2}
+        {
+            \foreach \lu in {True, False}
+                {
+                    \begin{subfigure}[b]{0.24 \textwidth}
+                        \caption{}
+                        \includegraphics[width=\textwidth]{./figures/06_barplot-runtime_gas-\gas_lu-\lu_scale-nop.pdf}
+                    \end{subfigure}%
+                    \hfill
+                }
+        }
+    \caption{Runtime decrease in percent for Hivemind runs with a different number of peers and vCPUs relative to baseline runs. Higher is better. Runs are aggregated across LR and the standard error amongst runs is shown with black bars.}
+    \label{fig:runtime-decrease_scale-nop}
+\end{figure}
+
+\begin{figure}[h]
+    % temporary
+    \foreach \gas in {1, 2}
+        {
+            \foreach \lu in {True, False}
+                {
+                    \begin{subfigure}[b]{0.475\linewidth}
+                        \centering
+                        \caption{}
+                        \includegraphics[width=\textwidth]{./figures/06_barplot-loss_gas-\gas_lu-\lu_scale-nop.pdf}
+                    \end{subfigure}
+                    \hfill
+                }
+        }
+    \caption{Loss increase in percent for Hivemind runs with a different number of peers and vCPUs relative to baseline runs. Higher is worse.}
+    \label{fig:loss-increase_scale-nop}
+\end{figure}

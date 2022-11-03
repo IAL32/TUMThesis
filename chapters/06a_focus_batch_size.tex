@@ -1,0 +1,151 @@
+
+\section{Focus on effects of batch size, learning rate and target Batch Size}\label{sec:focus-effect-bs-lr-tbs}
+
+Batch size and learning rate are some of the most fundamental hyperparameters to tune when training a neural network to obtain good training results.
+Tuning the learning rate should not impact training performance directly, but it can help to better understand how to tune it for different settings combinations while using Hivemind.
+As specified previously in \autoref{chapter:setup}, the reference optimizer algorithm is the stochastic gradient descent (SGD), which is wrapped around the \texttt{hivemind.Optimizer} class.
+
+The batch size determines how many samples are being processed in a training loop.
+In Hivemind, this has the consequence of reaching the TBS in fewer steps, but not necessarily in less time.
+
+\autoref{fig:runtime-decrease_2-peers-8vCPUs} shows the runtimes for Hivemind experiments with 2 peers and 8vCPUs per peer compared to the baseline runs.
+Every run shows a substantial decrease in runtime, with $BS=32$ having an average decrease of circa 20\%, $BS=64$ of circa 30\% and close to 40\% for $BS=128$.
+But can we just expect such a high increase in performance for free when turning on Hivemind?
+There are two important factors to take into consideration before making a such claim.
+
+\begin{enumerate}
+    \item Data loading in the baseline runs takes 1/3 of the total time per step as shown in \autoref{fig:baseline-times-stacked}.
+          Parallelizing data loading indeed speeds up the overall runtime for each run.
+          With further experimentation that is outside the scope of this thesis, it might be possible to reduce the data loading step with local parallelization techniques and faster storage.
+          Reducing the data loading step might help rule out the possibility that we only see runtime improvements because of the effects of loading more data in parallel.
+    \item The results in \autoref{fig:loss-increase_2-peers-8vCPUs} shows the hidden impact on loss of using Hivemind.
+          Nearly all experiments are not able to reach the minimum loss set by the respective baseline runs.
+          Some argue \cite{DBLP:journals/corr/abs-1708-03888} that it is possible to reach the same model accuracy just by training longer.
+          Others \cite{DBLP:journals/corr/KeskarMNST16} argue that longer training with larger batch sizes might lead to overall worse generalization capabilities for the model.
+          Proving the effects on accuracy and model generalization is beyond the scope of this thesis.
+\end{enumerate}
+
+\begin{figure}[h]
+    \centering
+    % temporary
+    \foreach \gas in {1, 2}
+        {
+            \foreach \lu in {True, False}
+                {
+                    \begin{subfigure}[b]{0.24 \textwidth}
+                        \caption{}
+                        \includegraphics[width=\textwidth]{./figures/06_barplot-runtime_gas-\gas_lu-\lu_2-peers-8vCPUs.pdf}
+                    \end{subfigure}%
+                    \hfill
+                }
+        }
+    \caption{Runtime decrease in percent for Hivemind runs with 2 peers and 8vCPUs relative to baseline runs. Higher is better. Runs are aggregated across LR and the standard error amongst runs is shown with black bars.}
+    \label{fig:runtime-decrease_2-peers-8vCPUs}
+\end{figure}
+
+\begin{figure}[h]
+    \centering
+    % temporary
+    \foreach \gas in {1, 2}
+        {
+            \foreach \lu in {True, False}
+                {
+                    \begin{subfigure}[b]{0.475\textwidth}
+                        \centering
+                        \caption{}
+                        \includegraphics[width=\textwidth]{./figures/06_barplot-loss_gas-\gas_lu-\lu_2-peers-8vCPUs.pdf}
+                    \end{subfigure}
+                    \hfill
+                }
+        }
+    \caption{Loss increase in percent for Hivemind runs with 2 peers and 8vCPUs relative to baseline runs. Higher is worse.}
+    \label{fig:loss-increase_2-peers-8vCPUs}
+\end{figure}
+
+
+\begin{figure}[h]
+    \centering
+            \foreach \lu in {True, False}
+                {
+
+                    \begin{subfigure}[b]{\textwidth}
+                        \centering
+                        \caption{}
+                        \includegraphics[width=\textwidth]{./figures/06_barplot-times_gas-1_lu-\lu_2-peers-8vCPUs.pdf}
+                    \end{subfigure}%
+                    \hfill
+                }
+    \caption{
+        Average times of data load (small circles), forward pass (backward slash), backward pass (forward slash) and optimization step (stars) baseline experiments in seconds.
+        Runs are further aggregated across LR and the standard error amongst runs is shown with black bars (continues).
+    }
+    \label{fig:times-stacked_2-peers-8vCPUs}
+\end{figure}
+
+\begin{figure}[htb]\ContinuedFloat % continue previous figure
+    \centering
+            \foreach \lu in {True, False}
+                {
+
+                    \begin{subfigure}[b]{\textwidth}
+                        \centering
+                        \caption{}
+                        \includegraphics[width=\textwidth]{./figures/06_barplot-times_gas-2_lu-\lu_2-peers-8vCPUs.pdf}
+                    \end{subfigure}%
+                    \hfill
+                }
+    \caption*{Figure~\ref{fig:times-stacked_2-peers-8vCPUs}:~
+        Average times of data load (small circles), forward pass (backward slash), backward pass (forward slash) and optimization step (stars) baseline experiments in seconds.
+        Runs are further aggregated across LR and the standard error amongst runs is shown with black bars.
+    }
+\end{figure}
+
+Depending on the optimizer used for training a neural network model, the number of parameters can become huge.
+When performing an optimizer state averaging state, sending a high amount of parameters can lead to high communication overhead, and thus, reduced performance.
+We can see this effect in \autoref{fig:net-recv-sys-bandwidth-mbs_2-peers-8vCPUs} and \autoref{fig:net-sent-sys-bandwidth-mbs_2-peers-8vCPUs}.
+As the batch size increases, nodes send and receive more data, increasing bandwidth utilization.
+
+\begin{figure}[h]
+    \centering
+    \foreach \gas in {1, 2}
+        {
+            \foreach \lu in {True, False}
+                {
+                    \begin{subfigure}[b]{0.24\linewidth}
+                        \centering
+                        \caption{}
+                        \includegraphics[width=\textwidth]{./figures/06_net-recv-sys-bandwidth-mbs_gas-\gas_lu-\lu_2-peers-8vCPUs.pdf}
+                    \end{subfigure}%
+                    \hfill
+                }
+        }
+    \caption{Network received for Hivemind runs with 2 peers and 8vCPUs. Values $>=20$ MB/s are hidden and runs are aggregated across LR.}
+    \label{fig:net-recv-sys-bandwidth-mbs_2-peers-8vCPUs}
+\end{figure}
+
+\begin{figure}[h]
+    \centering
+    \foreach \gas in {1, 2}
+        {
+            \foreach \lu in {True, False}
+                {
+                    \begin{subfigure}[b]{0.24\linewidth}
+                        \centering
+                        \caption{}
+                        \includegraphics[width=\textwidth]{./figures/06_net-sent-sys-bandwidth-mbs_gas-\gas_lu-\lu_2-peers-8vCPUs.pdf}
+                    \end{subfigure}%
+                    \hfill
+                }
+        }
+    \caption{Network sent for Hivemind runs with 2 peers and 8vCPUs. Values $>=20$ MB/s are hidden and runs are aggregated across LR.}
+    \label{fig:net-sent-sys-bandwidth-mbs_2-peers-8vCPUs}
+\end{figure}
+
+Considerations of training with Hivemind for the TBS, BS and LR hyperparameters:
+
+\begin{itemize}
+    \item With the same amount of computational power overall, training with Hivemind might need more time to reach the loss compared to the baseline runs.
+    \item Having access to less powerful hardware still allows training peers to be helpful, at the cost of training for longer.
+    \item Increasing the frequency of averaging does not make up for a bad selection of optimization hyperparameters such as the batch size and learning rate.
+    \item However being able to perform averaging steps more frequently can help to reduce the loss gap with the baseline runs.
+\end{itemize}

@@ -60,7 +60,7 @@ Hivemind features such as the DHT and the Optimizer wrapper are completely deact
 
 \section{Not-Baseline Case}
 
-To test and isolate the effects of using Hivemind for distributed training, each of our experiments changes only a single parameter at a time.
+To test and isolate the effects of using Hivemind for distributed training, every experiment changes only a single parameter at a time.
 For this, we can divide the set of non-baseline cases into different categories depending on which parameter has been changed.
 In every non-base case scenario described in this section, at least two nodes are involved in the training of the underlying NN model.
 
@@ -70,7 +70,7 @@ We repeat the same experiments as the baseline runs, and further explore the fol
     \item \textbf{Number of Peers (NoP)}: 2, 4, 8 and 16; for loads like the experiment that we are running, is communication between many nodes a bottleneck?
     \item \textbf{Number of logical cores per node (vCPUs)}: 1, 2, 4, 8 and 16; using the same amount of computational power across many nodes, do we get to a target loss faster?
     \item \textbf{Target Batch Size (TBS)}: 10.000, 5000, 2500, 1250 and 625; using smaller target batch size, do we get faster to the target loss?
-    \item \textbf{Max Steps (MS)}: 5000, 2500, 1250 and 625; this parameter depends on the number of peers and batch size, but the total is always 10.000 steps per experiment;
+    \item \textbf{Max Steps (MS)}: 5000, 2500, 1250 and 625; this parameter depends on the number of peers and batch size, but the total is always 320.000 steps per experiment;
     \item \textbf{Use Local Updates (LU)}: \texttt{True} or \texttt{False}; Hivemind allows us to control when to schedule gradient, model and parameter averaging. How does this setting affect training?
 \end{itemize}
 
@@ -106,3 +106,34 @@ In total, we have executed 288 experiments for this thesis.
     157  & 16  & 1     & 128 & 0.001, 0.01, 0.1 & 1250                          & 1,2 & T, F \\
     \hline
 \end{tabularx}
+
+We have fixed the following Hivemind hyperparameters that were not the focus of this thesis, although some can be further explored:
+\begin{itemize}
+    \item \textbf{matchmaking\_time}; defines for how many seconds the optimizer should wait for other peers to join an averaging round.
+          We set this value to 10.
+          Ideally, optimizers should never have to wait for this long amount of time in our setup.
+    \item \textbf{averaging\_timeout}; after this many seconds, an averaging round is canceled.
+          We set this value to 300.
+          This high value is not encouraged by the Hivemind framework, as it may cause optimizers to hang in case of network errors.
+          However, because we have a controlled environment with low latency, setting this to a high value allows us to quickly determine issues with our setup and intervene by re-running the experiments.
+    \item \textbf{grad\_compression}; defines which class to use for gradient compression.
+          We set this to \texttt{hivemind.NoCompression} for every run, as exploring the effects of compression for gradients is outside the focus of this thesis.
+          Other works have focused on the effects of data sparsity and data parallelism \cite{DBLP:journals/corr/abs-2003-11316}.
+\end{itemize}
+
+\section{Metrics comparison framework}
+
+In the next chapter, we will compare training and system metrics between baseline and Hivemind runs.
+However, they are not directly comparable.
+
+Hivemind runs involve more than one machine per experiment, with each machine completing its task earlier or later than other peers that are in the same training network.
+We assume that an experiment ends when the last peer finishes processing the samples it has been assigned.
+Thus, for Hivemind runs we chose to use the maximum runtime amongst all peers to be used for comparison and analysis.
+
+For training loss, we always select the mean training loss reached by the baseline re-runs, and the minimum loss reached by all peers for Hivemind runs.
+We chose the minimum for the Hivemind runs because the model being trained is essentially one.
+When saving the model for inference purposes, the selection of which peer's model to pick should lie on the model with the minimum loss.
+
+We also use the average for system metrics such as bandwidth received and sent, CPU load and RAM usage for both baseline and Hivemind runs.
+This is because all nodes in our controlled Hivemind experiments behave more or less the same.
+In real-life scenarios such as training across the internet, where latency and peer behavior is unpredictable, this assumption would not be possible.

@@ -20,7 +20,7 @@ A simple calculation shows that the neural network model Megatron-Turing-NLG 530
 
 Furthermore, training a neural network model requires even more memory.
 Intermediate computation outputs such as gradient and optimizer states sometimes require 2 or 3 times as much memory than just the model parameters, making GPU memory one of the main bottlenecks in training huge neural network models.
-While some of these issues can be tackled using clever techniques such as parameter quantization, pruning and compression, they must not be considered one-fits-all solutions.
+While some of these issues can be tackled using techniques such as parameter quantization \cite{DBLP:journals/corr/abs-2003-11316}, pruning and compression, they must not be considered one-fits-all solutions.
 Some models are simply too big to be trained on a single device.
 This problem is exacerbated by factors such as GPU prices and much slower growth of their memory size.
 \autoref{fig:gpu-vram-over-time} shows how GPU memory has been increasing from 2016 to 2022.
@@ -43,13 +43,31 @@ To tackle this problem, practitioners studied and developed distributed computin
 
 These techniques can be briefly categorized as follows:
 \begin{itemize}
-    \item \textit{Data parallelism}. Given a set of $n$ devices, an instance of the model is trained on each one of the devices. Usually, gradients obtained during backpropagation are then aggregated across all the devices using techniques such as \textit{AllReduce}. This technique however does not work very well with models that exceed a single device's available memory and is therefore used in applications with low-memory devices such as \textit{Federated Learning} \cite{li2019federatedlearning}.
+    \item \textit{Data parallelism}.
+          Given a set of $n$ devices, an instance of the model is trained on each one of the devices.
+          Usually, gradients obtained during backpropagation are then aggregated across all the devices using techniques such as \textit{AllReduce}.
+          This technique however does not work very well with models that exceed a single device's available memory and is therefore used in applications with low-memory devices such as \textit{Federated Learning} \cite{li2019federatedlearning}.
 
-    \item \textit{Model parallelism}. A deep neural network is conceptually split into $n$ partitions across $n$ devices, each hosting a different partition and set of weights. An early notable example of model parallelism is AlexNet \cite{alexnet2012}, where the authors decided to split the computation of some of the layers across two GPUs with 3GB of ram each, a concept illustrated in \autoref{fig:alexnet}. This technique relieves the burden of a single node to host all of the weights of a model but is also more sensitive to issues with communication across nodes.
+    \item \textit{Model parallelism}.
+          A deep neural network is conceptually split into $n$ partitions across $n$ devices, each hosting a different partition and set of weights.
+          An early notable example of model parallelism is AlexNet \cite{alexnet2012}, where the authors decided to split the computation of some of the layers across two GPUs with 3GB of ram each, a concept illustrated in \autoref{fig:alexnet}.
+          This technique relieves the burden of a single node to host all of the weights of a model but is also more sensitive to issues with communication across nodes.
 
-    \item \textit{Pipeline parallelism}. A combination between model parallelism and data parallelism. Introduced by \cite{huang2018gpipe}, pipeline parallelism consists in splitting a batch into micro-batches across the available computing devices, leading to fewer dead wait times.
-    \item \textit{Tensor parallelism}. Tensor operations for huge neural network models can become a bottleneck, as they can require more memory than the host's device can handle and can become slow in general. Tensor parallelism can alleviate a single node's computational burden by splitting a tensor operation across many devices. This technique has been first introduced in neural network models in \cite{dean2012distbelief} with a framework called DistBelief.
-    \item \textit{Mixture-of-Experts}. Instead of conceptually splitting a model, we construct multiple, different models. Each of them specializes in a different subset of the complete set of training cases, helped by a gating function. This has been first introduced in 1991 by \cite{Jacobs1991mixtureofexperts} but has recently gained traction due to its attractiveness in numerous tasks.
+    \item \textit{Pipeline parallelism}.
+          A combination between model parallelism and data parallelism.
+          Pipeline parallelism for machine learning models has been introduced in 2018 \cite{huang2018gpipe}.
+          With this technique, each batch is split into micro-batches and sent to available computing devices such as GPUs, which individually compute both the forward and backward pass for that micro-batch.
+          Finally, weights are averaged after backpropagation has taken place on every GPU.
+
+    \item \textit{Tensor parallelism}.
+          Tensor operations for huge neural network models can become a bottleneck, as they can require more memory than the host's device can handle and can become slow in general.
+          Tensor parallelism can alleviate a single node's computational burden by splitting a tensor operation across many devices.
+          This technique has been first introduced in neural network models in \cite{dean2012distbelief} with a framework called DistBelief.
+
+    \item \textit{Mixture-of-Experts}.
+          Instead of conceptually splitting a model, we construct multiple, different models and split them across workers, also called ``experts''.
+          A gating function helps each of the experts to specialize in a different subset of all training cases.
+          The broader concept has been first introduced in 1991 \cite{Jacobs1991mixtureofexperts} but has recently gained traction due to its flexibility in solving natural language problems.
 \end{itemize}
 
 \begin{figure}[h]
@@ -105,7 +123,7 @@ Using the techniques and findings showcased in \cite{isenko2022bottleneck}, this
 \section{Approach}
 
 In this thesis, we will compare regular training using a single node with 16vCPUs to training using Hivemind with multiple peers, where the sum of vCPUs per peer always amounts to 16.
-Also, the number of samples 
+Also, the number of samples
 We compare training with key Hivemind settings, namely:
 \begin{itemize}
     \item Batch size;

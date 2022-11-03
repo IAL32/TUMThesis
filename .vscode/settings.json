@@ -4,5 +4,6 @@
           "column": 160,
       }
     ],
-    "latex-workshop.latex.outDir": "%DIR%/build"
+    "latex-workshop.latex.outDir": "%DIR%/build",
+    "python.formatting.provider": "yapf"
 }
