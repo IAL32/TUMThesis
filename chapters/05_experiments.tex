@@ -19,7 +19,7 @@ We designed our baseline experiments in a grid search, covering the following tr
 \begin{itemize}
     \item Batch Size (BS): 32, 64 and 128;
     \item Learning Rate (LR): 0.001, 0.01 and 0.1;
-    \item Max Steps (MS): 10.000 for BS=32, 5000 for BS=64, 2500 for BS=128.
+    \item Max Steps (MS): 10000 for BS=32, 5000 for BS=64, 2500 for BS=128.
     \item Gradient Accumulation Steps (GAS): 1 (no accumulation), 2 (with accumulation up to two steps)
 \end{itemize}
 
@@ -32,9 +32,9 @@ We designed our baseline experiments in a grid search, covering the following tr
     \hline
     Max Steps & Batch Size & Learning Rate & Grad. Acc. Steps \\
     \hline
-    10.000    & 32         & 0.001         & 1                \\
-    10.000    & 32         & 0.01          & 1                \\
-    10.000    & 32         & 0.1           & 1                \\
+    10000    & 32         & 0.001         & 1                \\
+    10000    & 32         & 0.01          & 1                \\
+    10000    & 32         & 0.1           & 1                \\
     5000      & 64         & 0.001         & 1                \\
     5000      & 64         & 0.01          & 1                \\
     5000      & 64         & 0.1           & 1                \\
@@ -42,9 +42,9 @@ We designed our baseline experiments in a grid search, covering the following tr
     2500      & 128        & 0.01          & 1                \\
     2500      & 128        & 0.1           & 1                \\
     \hline
-    10.000    & 32         & 0.001         & 2                \\
-    10.000    & 32         & 0.01          & 2                \\
-    10.000    & 32         & 0.1           & 2                \\
+    10000    & 32         & 0.001         & 2                \\
+    10000    & 32         & 0.01          & 2                \\
+    10000    & 32         & 0.1           & 2                \\
     5000      & 64         & 0.001         & 2                \\
     5000      & 64         & 0.01          & 2                \\
     5000      & 64         & 0.1           & 2                \\
@@ -69,8 +69,8 @@ We repeat the same experiments as the baseline runs, and further explore the fol
 \begin{itemize}
     \item \textbf{Number of Peers (NoP)}: 2, 4, 8 and 16; for loads like the experiment that we are running, is communication between many nodes a bottleneck?
     \item \textbf{Number of logical cores per node (vCPUs)}: 1, 2, 4, 8 and 16; using the same amount of computational power across many nodes, do we get to a target loss faster?
-    \item \textbf{Target Batch Size (TBS)}: 10.000, 5000, 2500, 1250 and 625; using smaller target batch size, do we get faster to the target loss?
-    \item \textbf{Max Steps (MS)}: 5000, 2500, 1250 and 625; this parameter depends on the number of peers and batch size, but the total is always 320.000 steps per experiment;
+    \item \textbf{Target Batch Size (TBS)}: 10000, 5000, 2500, 1250 and 625; using smaller target batch size, do we get faster to the target loss?
+    \item \textbf{Max Steps (MS)}: 5000, 2500, 1250 and 625; this parameter depends on the number of peers and batch size, but the total is always 320,000 steps per experiment;
     \item \textbf{Use Local Updates (LU)}: \texttt{True} or \texttt{False}; Hivemind allows us to control when to schedule gradient, model and parameter averaging. How does this setting affect training?
 \end{itemize}
 
@@ -87,9 +87,9 @@ In total, we have executed 288 experiments for this thesis.
     \hline
     MS   & NoP & vCPUs & BS  & LR               & TBS                           & GAS & LU   \\
     \hline
-    5000 & 2   & 8     & 32  & 0.001, 0.01, 0.1 & 10.000, 5000, 2500, 1250, 625 & 1,2 & T, F \\
-    2500 & 2   & 8     & 64  & 0.001, 0.01, 0.1 & 10.000, 5000, 2500, 1250, 625 & 1,2 & T, F \\
-    1250 & 2   & 8     & 128 & 0.001, 0.01, 0.1 & 10.000, 5000, 2500, 1250, 625 & 1,2 & T, F \\
+    5000 & 2   & 8     & 32  & 0.001, 0.01, 0.1 & 10000, 5000, 2500, 1250, 625 & 1,2 & T, F \\
+    2500 & 2   & 8     & 64  & 0.001, 0.01, 0.1 & 10000, 5000, 2500, 1250, 625 & 1,2 & T, F \\
+    1250 & 2   & 8     & 128 & 0.001, 0.01, 0.1 & 10000, 5000, 2500, 1250, 625 & 1,2 & T, F \\
     \hline
     \multicolumn{8}{|c|}{Experiments testing for the effect of the number of peers (NoP)}    \\
     \hline

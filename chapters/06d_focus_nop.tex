@@ -17,14 +17,11 @@ Similar to the Hivemind runs with 2 peers and 8vCPUs presented in \autoref{sec:f
     % temporary
     \foreach \gas in {1, 2}
         {
-            \foreach \lu in {True, False}
-                {
-                    \begin{subfigure}[b]{0.24 \textwidth}
-                        \caption{}
-                        \includegraphics[width=\textwidth]{./figures/06_barplot-runtime_gas-\gas_lu-\lu_scale-nop.pdf}
-                    \end{subfigure}%
-                    \hfill
-                }
+            \begin{subfigure}[b]{0.475 \textwidth}
+                \caption{}
+                \includegraphics[width=\textwidth]{./figures/06_barplot-runtime_gas-\gas_scale-nop.pdf}
+            \end{subfigure}%
+            \hfill
         }
     \caption{Runtime decrease in percent for Hivemind runs with different number of peers and vCPUs relative to baseline runs. Higher is better. Runs are aggregated across LR and the standard error amongst runs is shown with black bars.}
     \label{fig:runtime-decrease_scale-nop}
@@ -36,7 +33,7 @@ Similar to the Hivemind runs with 2 peers and 8vCPUs presented in \autoref{sec:f
         {
             \foreach \lu in {True, False}
                 {
-                    \begin{subfigure}[b]{0.475\linewidth}
+                    \begin{subfigure}[b]{0.5\linewidth}
                         \centering
                         \caption{}
                         \includegraphics[width=\textwidth]{./figures/06_barplot-loss_gas-\gas_lu-\lu_scale-nop.pdf}

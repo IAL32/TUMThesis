@@ -1,9 +1,22 @@
 \chapter{Related Work}\label{chapter:related-work}
 Data parallelism has been leveraged to improve the performance of machine learning systems \cite{alexnet2012}.
 Several common frameworks implement data parallelism such as PyTorch \footnote{\href{https://pytorch.org/}{https://pytorch.org/}} and TensorFlow\footnote{\href{https://tensorflow.org/}{https://tensorflow.org/}} through a high-level API.
-There are already some works that analyze the effects of data parallelism \cite{DBLP:journals/corr/abs-2003-11316}
+There are already some works that analyze the effects of data parallelism \cite{DBLP:journals/corr/abs-2003-11316,DBLP:journals/corr/abs-1811-03600}.
+Throughout our experiments, we have found similar results in terms of data parallelism limits.
+We show that increasing the number of machines and the frequency of communication between them when training with Hivemind can reach a point of diminishing returns.
 
-Talk about distributed training, model and data parallelism works.
-Talk about Hivemind paper and papers that Hivemind bases itself upon.
-Basically explain why this thesis is needed at all.
+Recently, training neural networks using large or very large batches \cite{DBLP:journals/corr/KeskarMNST16, 10.48550/arxiv.1705.08741} has gained traction amongst researchers.
+Hivemind allows setting different strategies for when parameters and model states are averaged, effectively simulating larger batches.
+However, in their original paper \cite{ryabinin2020learning} the authors do not go into the details about what is the rationale for their specific algorithm implementation, and its effect on training.
+Instead, they focus on the Mixture-of-Experts algorithm implementation for Hivemind, which has not yet been tested in a real-life scenario because the software is yet to be completed.
+In this thesis, we would like to provide a deeper insight into the effects of Hivemind when training with larger batches, tuning the local updates setting and implementing gradient accumulation to our training experiments.
+
+It is challenging to find a good balance between creating experiments that cover a lot of parameters and practicality.
+More often than not, it is not possible to explore all possible combinations and tune every knob of a system, due to budget or time restrictions.
+As explained by \Citeauthor{DBLP:journals/corr/abs-1811-03600} in their analysis, budgets are also often ignored during the evaluation of novel techniques.
+This can lead to a bias towards positive results, limiting the application of the lessons learned from each research paper.
+In this thesis, we set an arbitrary budget of 320,000 samples per experiment to evaluate our metrics.
+We further limit the number of hyperparameters to explore for both regular training and baseline experiments and Hivemind experiments.
+In total, we produced 288 experiments that cover a small number of settings.
+This allows us to focus on the effects of tuning single parameters rather than trying to achieve the best possible model.
 

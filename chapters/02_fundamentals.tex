@@ -158,15 +158,36 @@ One of the first and most notable examples of the results of this phenomenon is 
 This was 2010, and a little more than a decade later, to train the newest neural network models, practitioners, companies and research institutes need thousands of powerful GPUs.
 Distributed system techniques are used to be able to train these massive neural networks, creating the new term ``distributed training''.
 
-We can split distributed training into three macro categories:
+We briefly summarize distributed training techniques as follows:
 \begin{itemize}
-    \item \textbf{data parallelism}; this technique is conceptually the easiest and practically the most straightforward to implement.
-          In data parallelism, the same model is being trained simultaneously in several distinct machines, aggregating the parameter updates through operations like \textit{AllReduce}.
-    \item \textbf{tensor parallelism}; some operations in neural network training like matrix multiplications may need big amounts of memory and computational power to be executed.
-          With tensor parallelism, the operations themselves are split amongst several distinct machines, eventually aggregating their results into single or multiple ones, depending on the neural network structure.
-    \item \textbf{hybrid parallelism}; whenever we want to train very big neural network models, depending only on one technique between data parallelism and tensor parallelism is often not enough to achieve good enough performance.
-          In hybrid parallelism, the concepts and techniques of both data and tensor parallelism are combined.
+    \item \textbf{Data parallelism};
+          given a set of $n$ devices, an instance of the model is trained on each one of the devices.
+          Usually, gradients obtained during backpropagation are then aggregated across all the devices using techniques such as \textit{AllReduce}.
+          This technique however does not work very well with models that exceed a single device's available memory and is therefore used in applications with low-memory devices such as \textit{Federated Learning} \cite{li2019federatedlearning}.
+
+    \item \textbf{Model parallelism};
+          a deep neural network is conceptually split into $n$ partitions across $n$ devices, each hosting a different partition and set of weights.
+          An early notable example of model parallelism is AlexNet \cite{alexnet2012}, where the authors decided to split the computation of some of the layers across two GPUs with 3GB of ram each, a concept illustrated in \autoref{fig:alexnet}.
+          This technique relieves the burden of a single node to host all of the weights of a model but is also more sensitive to issues with communication across nodes.
+
+    \item \textbf{Pipeline parallelism};
+          a combination between model parallelism and data parallelism.
+          Pipeline parallelism for machine learning models has been introduced in 2018 \cite{huang2018gpipe}.
+          With this technique, each batch is split into micro-batches and sent to available computing devices such as GPUs, which individually compute both the forward and backward pass for that micro-batch.
+          Finally, weights are averaged after backpropagation has taken place on every GPU.
+
+    \item \textbf{Tensor parallelism};
+          tensor operations for huge neural network models can become a bottleneck, as they can require more memory than the host's device can handle and can become slow in general.
+          Tensor parallelism can alleviate a single node's computational burden by splitting a tensor operation across many devices.
+          This technique has been first introduced in neural network models in \cite{dean2012distbelief} with a framework called DistBelief.
+
+    \item \textbf{Mixture-of-Experts}.
+          Instead of conceptually splitting a model, we construct multiple, different models and split them across workers, also called ``experts''.
+          A gating function helps each of the experts to specialize in a different subset of all training cases.
+          The broader concept has been first introduced in 1991 \cite{Jacobs1991mixtureofexperts} but has recently gained traction due to its flexibility in solving natural language problems.
 \end{itemize}
+
+The list is always evolving, and new techniques may be developed in the next years.
 
 \subsection{Bottleneck Analysis}
 
@@ -247,6 +268,32 @@ After another step, the accumulated samples are equal to $128+(64+64)=256$.
 Because the total number of accumulated samples is now 256 and it is equal to TBS, each peer can now initiate an averaging round with all other participating peers.
 What happens right before and after averaging depends on the \texttt{use\_local\_updates} setting.
 
+\subsection{Parameter Averaging}
+
+Optimizers used for deep learning training such as SGD \cite{10.1214/aoms/1177729392} and ADAM \cite{10.48550/arxiv.1412.6980} need some information stored in memory to operate.
+When training collaboratively, each peer may perform operations using a local version of these vectors to proceed with training.
+However, optimizer parameters may diverge during training, in turn causing the underlying model parameters to diverge.
+It is possible to mitigate this effect by performing operations that take into account all of the peer's information, for example with \textit{AllReduce} operations.
+In the case of Hivemind, the operation of choice is averaging, which can be performed for both the optimizer state and the gradients before applying them to the model.
+
+\begin{figure}[h]
+    \centering
+    \begin{subfigure}[b]{0.475 \textwidth}
+        \centering
+        \caption{State averaging in Hivemind.}
+        \label{fig:state-averaging}
+        \includegraphics[width=\textwidth]{./figures/02_optimizer_averaging.pdf}
+    \end{subfigure}%
+    \hfill
+    \begin{subfigure}[b]{0.475 \textwidth}
+        \centering
+        \caption{Gradient averaging in Hivemind.}
+        \label{fig:gradient-averaging}
+        \includegraphics[width=\textwidth]{./figures/02_gradient_averaging.pdf}
+    \end{subfigure}
+    \caption{}
+\end{figure}
+
 \subsubsection{Local Updates}
 
 Training neural networks with larger batches has been proven to be beneficial in some cases \cite{Krizhevsky2014owt, goyal2017accurate, you2017scaling}.
@@ -267,16 +314,16 @@ The setting has two modes:
 
 \begin{figure}[h]
     \centering
-    \caption{Nodes in a Peer-to-Peer network exchanging data directly with one another. Every node has its own internal DHT which is kept in sync with other peers.}
+    \caption{Diagram of Hivemind training with local updates enabled.}
     \label{fig:use-local-updates_true}
-    \includegraphics[width=0.9 \textwidth]{./figures/02_use-local-updates_true.pdf}
+    \includegraphics[width=0.8 \textwidth]{./figures/02_use-local-updates_true.pdf}
 \end{figure}
 
 \begin{figure}[h]
     \centering
-    \caption{Nodes in a Peer-to-Peer network exchanging data directly with one another. Every node has its own internal DHT which is kept in sync with other peers.}
+    \caption{Diagram of Hivemind training with local updates disabled.}
     \label{fig:use-local-updates_false}
-    \includegraphics[width=0.8 \textwidth]{./figures/02_use-local-updates_false.pdf}
+    \includegraphics[width=0.7 \textwidth]{./figures/02_use-local-updates_false.pdf}
 \end{figure}
 
 

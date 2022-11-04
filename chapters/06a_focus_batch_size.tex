@@ -20,7 +20,7 @@ There are two important factors to take into consideration before making a such 
           Reducing the data loading step might help rule out the possibility that we only see runtime improvements because of the effects of loading more data in parallel.
     \item The results in \autoref{fig:loss-increase_2-peers-8vCPUs} shows the hidden impact on loss of using Hivemind.
           Nearly all experiments are not able to reach the minimum loss set by the respective baseline runs.
-          Some argue \cite{DBLP:journals/corr/abs-1708-03888} that it is possible to reach the same model accuracy just by training longer.
+          Some experiments \cite{you2017scaling} have shown that large batch training can lead to divergence, and it is possible to reach the same model accuracy just by training longer.
           Others \cite{DBLP:journals/corr/KeskarMNST16} argue that longer training with larger batch sizes might lead to overall worse generalization capabilities for the model.
           Proving the effects on accuracy and model generalization is beyond the scope of this thesis.
 \end{enumerate}
@@ -36,7 +36,7 @@ There are two important factors to take into consideration before making a such 
             \end{subfigure}%
             \hfill
         }
-    \caption{Runtime decrease in percent for Hivemind runs with 2 peers and 8vCPUs relative to baseline runs. Higher is better. Runs are aggregated across LR and the standard error amongst runs is shown with black bars.}
+    \caption{Runtime decrease in percent for Hivemind runs with 2 peers and 8vCPUs relative to the baseline runs. Higher is better. Runs are aggregated across LR and the standard error amongst runs is shown with black bars.}
     \label{fig:runtime-decrease_2-peers-8vCPUs}
 \end{figure}
 
@@ -55,7 +55,7 @@ There are two important factors to take into consideration before making a such 
                     \hfill
                 }
         }
-    \caption{Loss increase in percent for Hivemind runs with 2 peers and 8vCPUs relative to baseline runs. Higher is worse.}
+    \caption{Loss increase in percent for Hivemind runs with 2 peers and 8vCPUs relative to the baseline runs. Higher is worse.}
     \label{fig:loss-increase_2-peers-8vCPUs}
 \end{figure}
 

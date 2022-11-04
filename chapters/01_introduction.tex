@@ -1,10 +1,11 @@
 % !TeX root = ../main.tex
 % Add the above to each chapter to make compiling the PDF easier in some editors.
 
-\chapter{Introduction}\label{chapter:introduction}
+\chapter{INTRODUCTION}\label{chapter:introduction}
 
 It is safe to say that the internet paved the way for many things for humanity.
-Media such as images, video and audio can be shared across websites and applications, knowledge can be stored in faraway servers and retrieved with ease in text format using mobile devices, and products and services can be bought with the click of a button or a tap on a screen.
+Media such as images, video and audio can be shared across websites and applications, knowledge can be stored on faraway servers.
+This knowledge can then be retrieved with ease in text format using mobile devices, and products and services can be bought with the click of a button or a tap on a screen.
 Interactions, media and information make up for massive amounts of data that flow through complex computer systems, which in turn generate even more data and information.
 
 Researchers have found ways to leverage the magnitude of data that is being produced every second by countless systems all around the world.
@@ -22,7 +23,7 @@ Furthermore, training a neural network model requires even more memory.
 Intermediate computation outputs such as gradient and optimizer states sometimes require 2 or 3 times as much memory than just the model parameters, making GPU memory one of the main bottlenecks in training huge neural network models.
 While some of these issues can be tackled using techniques such as parameter quantization \cite{DBLP:journals/corr/abs-2003-11316}, pruning and compression, they must not be considered one-fits-all solutions.
 Some models are simply too big to be trained on a single device.
-This problem is exacerbated by factors such as GPU prices and much slower growth of their memory size.
+This problem is exacerbated by factors such as high GPU prices and much slower growth of their memory size relative to model size.
 \autoref{fig:gpu-vram-over-time} shows how GPU memory has been increasing from 2016 to 2022.
 
 \begin{figure}[h]
@@ -40,35 +41,7 @@ This problem is exacerbated by factors such as GPU prices and much slower growth
 The characteristics of the latest GPU released by NVIDIA earlier in 2022, the H100 with 80GB of memory, an amount that hasn't changed since its direct predecessor A100.
 
 To tackle this problem, practitioners studied and developed distributed computing techniques to train models that do not fit entirely in a single GPU's memory, distributing the training load to potentially thousands of devices.
-
-These techniques can be briefly categorized as follows:
-\begin{itemize}
-    \item \textit{Data parallelism}.
-          Given a set of $n$ devices, an instance of the model is trained on each one of the devices.
-          Usually, gradients obtained during backpropagation are then aggregated across all the devices using techniques such as \textit{AllReduce}.
-          This technique however does not work very well with models that exceed a single device's available memory and is therefore used in applications with low-memory devices such as \textit{Federated Learning} \cite{li2019federatedlearning}.
-
-    \item \textit{Model parallelism}.
-          A deep neural network is conceptually split into $n$ partitions across $n$ devices, each hosting a different partition and set of weights.
-          An early notable example of model parallelism is AlexNet \cite{alexnet2012}, where the authors decided to split the computation of some of the layers across two GPUs with 3GB of ram each, a concept illustrated in \autoref{fig:alexnet}.
-          This technique relieves the burden of a single node to host all of the weights of a model but is also more sensitive to issues with communication across nodes.
-
-    \item \textit{Pipeline parallelism}.
-          A combination between model parallelism and data parallelism.
-          Pipeline parallelism for machine learning models has been introduced in 2018 \cite{huang2018gpipe}.
-          With this technique, each batch is split into micro-batches and sent to available computing devices such as GPUs, which individually compute both the forward and backward pass for that micro-batch.
-          Finally, weights are averaged after backpropagation has taken place on every GPU.
-
-    \item \textit{Tensor parallelism}.
-          Tensor operations for huge neural network models can become a bottleneck, as they can require more memory than the host's device can handle and can become slow in general.
-          Tensor parallelism can alleviate a single node's computational burden by splitting a tensor operation across many devices.
-          This technique has been first introduced in neural network models in \cite{dean2012distbelief} with a framework called DistBelief.
-
-    \item \textit{Mixture-of-Experts}.
-          Instead of conceptually splitting a model, we construct multiple, different models and split them across workers, also called ``experts''.
-          A gating function helps each of the experts to specialize in a different subset of all training cases.
-          The broader concept has been first introduced in 1991 \cite{Jacobs1991mixtureofexperts} but has recently gained traction due to its flexibility in solving natural language problems.
-\end{itemize}
+One of the first, most prominent examples of distributed parallelism is the AlexNet network \cite{alexnet2012}, summarized in \autoref{fig:alexnet}.
 
 \begin{figure}[h]
     \caption{AlexNet \cite{alexnet2012} architecture shows one of the first examples of model parallelism. The training of convolutional layers is split across two GPUs, as the size of the model during training exceeded the available memory of a single GPU.}
@@ -76,49 +49,37 @@ These techniques can be briefly categorized as follows:
     \includegraphics[width=\textwidth]{./figures/alexnet.pdf}
 \end{figure}
 
-\section{Motivation}
-
-Most of the frameworks and papers built on top of the techniques presented previously approach scalability issues by employing tremendous amounts of expensive, top-of-the-art and heterogeneous hardware.
+Since then, the area of distributed training for neural networks has expanded, eventually leading to the creation of Hivemind.
+Most of the frameworks and papers built on top of the techniques presented previously approach scalability issues by employing tremendous amounts of expensive, top-of-the-art and homogeneous hardware.
 However, universities, small companies and hobbyists that want to train the models described in these papers do not necessarily have access to a such vast amount of resources, limiting possibilities and research directions.
 
 The framework Hivemind \cite{riabinin2020hivemind} aims to help with these issues by allowing distributed neural network training across the internet using heterogeneous devices.
 The authors provide two types of training: \textit{decentralized parameter averaging} and \textit{decentralized mixture-of-experts}.
 
 Hivemind implements two training algorithms: ``Decentralized Mixture-of-Experts'' (DMoE) \cite{ryabinin2020learning} and ``Parameter Averaging''.
-DMoE has been shown to work well for decentralized deep neural network training using large amounts of consumer-grade hardware.
-The algorithm described in the original paper employs a combination of decentralized and Mixture-of-Experts \cite{shazeer2017outrageously} techniques.
-This allows thousands of computing devices to join forces and train a single neural network model together.
-
-DMoE achieves these results by splitting the target neural network model into different parts called partitions, similarly to model parallelism.
-Each partition is then replicated across a subset of workers participating in the training.
-Next, a gating function is used to select which workers can perform the next operation on the given input.
-After the workers have been selected and located using a Distributed Hash Table (DHT), the input data is sent to the workers, and a forward pass is performed.
-A similar algorithm is applied during the backward pass.
-DMoE proved that scaling model training to thousands of heterogeneous compute nodes is possible, thus enabling large-scale community research projects.
-
-% NOTE: for now we keep it here
-% Although DMoE is robust against training latency, it also requires large amounts of data to be exchanged between every participant worker.
-% However, most participants that join the training network do not have datacenter-grade network connections and bandwidth.
-% Therefore, the communications needed to perform training may saturate a worker's network.
-% An approach suggested by \cite{ryabinin2020learning} to reduce the network load is to compress and convert tensors to a lower precision before transfer.
-
-Despite an academic interest in DMoE, we have eventually decided against performing any experimentation on DMoE for this thesis, as the API was not stable enough at the time of experiments.
-For this reason, the focus of this thesis is on decentralized parameter averaging, the second type of training algorithm implemented by Hivemind.
-With decentralized parameter averaging, each node participating in the training must have a copy of the model in memory.
-Every node performs training at its own pace, accumulating samples toward a global goal called ``target batch size''.
-Once this goal has been reached, an averaging round starts.
-The final gradients are calculated depending on the contribution in terms of the number of samples done by each peer, ensuring stability in case of peer failure.
+In this thesis, we will focus our efforts on decentralized parameter averaging.
+With this technique, every node participating in a Hivemind training network must have a copy of the model in its local memory.
+Each node performs training at its own pace, processing samples toward a global goal called ``target batch size''.
+Once this goal has been reached, one or two averaging rounds starts, depending on Hivemind settings.
+The final gradients to apply to a model are calculated depending on the contribution in terms of the number of samples done by each peer.
+This ensure stability in case of peer failure, removings its contribution towards the final calculation.
 
 Decentralized parameter averaging has shown promising results \cite{learning30:online}, successfully training a modified version of DALL-E using 40 peers over two months.
-TODO: add something else about this.
+This is by far one of the largest distributed experiments in deep learning that make use of heterogeneous devices to collaboratively train a single neural network model.
+In this thesis, we analyze the effects of several hyperparameters settings of Hivemind on training.
+We selected the ResNet18 \cite{he2015deep} model as our model of reference, trained on Imagenet-1k \cite{deng2009imagenet}.
 
+\section{Motivation}
+
+Training big neural network models is a big challenge in today's research, and access to the latest hardware makes this even more challenging.
 Over the last few years, research and software libraries like Hivemind have been focused on reducing and optimizing deep neural network model training times with techniques such as data and model parallelism.
-In \cite{xin2021production} however, the authors show that as much as 45\% of total training time may be spent on preprocessing tasks alone.
-Despite this, the impact of preprocessing pipelines is often ignored in current research.
-As noted by \citeauthor{isenko2022bottleneck} \cite{isenko2022bottleneck}, it is crucial to find and analyze bottlenecks during computation to maximize performance.
-In their work, they also detail several possible improvements that can be applied in preprocessing pipelines, increasing throughput under certain circumstances.
-Intuitively, given the high amount of communications and data loading needed by parameter averaging, training may be subject to inefficiencies.
-Using the techniques and findings showcased in \cite{isenko2022bottleneck}, this thesis further aims to find bottlenecks while training with Hivemind.
+Hivemind has already been tested by its authors in a real-life scenario by successfully training a modified version of DALL-E over two months with 40 peers from all over the world.
+However, there is little information on their work about the negative implications of applying Hivemind in other scenarios with different hyperparameters.
+This thesis aims to fill that gap by performing 288 synthetic experiments on ResNet18 trained on Imagenet-1k with different configurations.
+The insights gained from the results of this work can help broaden the applications of Hivemind.
+
+Training model with large batches has recently gained popularity thanks to several works illustrating their props and cons \cite{DBLP:journals/corr/KeskarMNST16, you2017scaling, DBLP:journals/corr/abs-1904-00962}.
+Hivemind
 
 \section{Approach}
 

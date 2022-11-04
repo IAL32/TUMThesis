@@ -95,8 +95,8 @@ def scan_history(run: wandb.apis.public.Run):
 
     row_summary = {
         **run.summary._json_dict,
-        "train/total_time_s": sum_total_time_s / len(row_history),
-        "train/missing_time_s": sum_missing_time_s / len(row_history),
+        "train/total_time_s": sum_total_time_s / len(row_history) if len(row_history) > 0 else 1,
+        "train/missing_time_s": sum_missing_time_s / len(row_history) if len(row_history) > 0 else 1,
     }
     row_summary["_runtime"] = row_summary["_runtime"] / 60
     row_summary["train/loss"] = row_summary["train/loss"]["min"]
@@ -160,7 +160,7 @@ def viz_column(data, chapter: str, filename: str, column: str, gas, is_nop=False
     if len(ylim) > 0:
         cleaned_data = cleaned_data[cleaned_data[column] < ylim[1]]
     row = "number_of_nodes" if is_nop else "target_batch_size"
-    g = sns.FacetGrid(cleaned_data, row="batch_size_per_step", col="use_local_updates", margin_titles=True)
+    g = sns.FacetGrid(cleaned_data, row="batch_size_per_step", col="use_local_updates", margin_titles=True, height=2)
     g.figure.suptitle(f"GAS = {gas}")
     g.set_xticklabels(rotation=45)
     g.map_dataframe(
@@ -173,7 +173,7 @@ def viz_column(data, chapter: str, filename: str, column: str, gas, is_nop=False
         linewidth=0.2,
     )
     g.set_ylabels("")
-    g.figure.supylabel(ylabel)
+    g.figure.supylabel(ylabel, fontsize=12)
     g.set_titles(row_template="BS = {row_name}", col_template="LU = {col_name}")
     g.set_xlabels("TBS")
     if len(ylim) > 0:
