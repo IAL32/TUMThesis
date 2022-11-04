@@ -147,25 +147,22 @@ def draw_line(ax, value):
 
 
 def viz_column_all(chapter: str, filename: str, column: str, **kwargs):
-    data = pd.read_csv(os.path.abspath('') + f"/{filename}")
+    sort_by = ["number_of_nodes", "batch_size_per_step", "optimizer_params.lr", "target_batch_size", "gradient_accumulation_steps", "use_local_updates"]
+    data = pd.read_csv(os.path.abspath('') + f"/{filename}", usecols=[*sort_by, column])
     for gas in [1, 2]:
         data_gas = data[data["gradient_accumulation_steps"] == gas]
-        for lu in [True, False]:
-            data_lu = data_gas[data_gas["use_local_updates"] == lu]
-            data_lu = data_lu.sort_values(by=[
-                "number_of_nodes", "batch_size_per_step", "optimizer_params.lr", "target_batch_size"
-            ], ascending=[True, True, True, False])
-            viz_column(data_lu, chapter, filename, column, gas, lu, **kwargs)
+        data_gas = data_gas.sort_values(by=sort_by, ascending=[True, False, True, False, True, True])
+        viz_column(data_gas, chapter, filename, column, gas, **kwargs)
 
 
-def viz_column(data, chapter: str, filename: str, column: str, gas, lu, is_nop=False, ylabel="", ylim=()):
+def viz_column(data, chapter: str, filename: str, column: str, gas, is_nop=False, ylabel="", ylim=()):
     cleaned_data = data
     if len(ylim) > 0:
         cleaned_data = cleaned_data[cleaned_data[column] < ylim[1]]
     row = "number_of_nodes" if is_nop else "target_batch_size"
-    g = sns.FacetGrid(cleaned_data, row="batch_size_per_step", height=3, margin_titles=True)
-    g.figure.suptitle(f"GAS = {gas} | LU = {lu}")
-    g.set_xticklabels(fontsize=7)
+    g = sns.FacetGrid(cleaned_data, row="batch_size_per_step", col="use_local_updates", margin_titles=True)
+    g.figure.suptitle(f"GAS = {gas}")
+    g.set_xticklabels(rotation=45)
     g.map_dataframe(
         sns.violinplot,
         x=row,
@@ -175,15 +172,16 @@ def viz_column(data, chapter: str, filename: str, column: str, gas, lu, is_nop=F
         palette="tab10",
         linewidth=0.2,
     )
-    g.set_ylabels(ylabel)
-    g.set_titles(row_template="BS = {row_name}", col_template="LR = {col_name}")
+    g.set_ylabels("")
+    g.figure.supylabel(ylabel)
+    g.set_titles(row_template="BS = {row_name}", col_template="LU = {col_name}")
     g.set_xlabels("TBS")
     if len(ylim) > 0:
         plt.ylim(*ylim)
 
     stripped_name = column.split("/")[-1].replace("_", "-")
     g.tight_layout()
-    g.figure.savefig(f"../../figures/{chapter}_{stripped_name}_gas-{gas}_lu-{lu}_{filename.replace('.csv', '.pdf')}", bbox_inches='tight')
+    g.figure.savefig(f"../../figures/{chapter}_{stripped_name}_gas-{gas}_{filename.replace('.csv', '.pdf')}", bbox_inches='tight')
     plt.show()
 
 

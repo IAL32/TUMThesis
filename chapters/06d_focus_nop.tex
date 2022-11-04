@@ -26,7 +26,7 @@ Similar to the Hivemind runs with 2 peers and 8vCPUs presented in \autoref{sec:f
                     \hfill
                 }
         }
-    \caption{Runtime decrease in percent for Hivemind runs with a different number of peers and vCPUs relative to baseline runs. Higher is better. Runs are aggregated across LR and the standard error amongst runs is shown with black bars.}
+    \caption{Runtime decrease in percent for Hivemind runs with different number of peers and vCPUs relative to baseline runs. Higher is better. Runs are aggregated across LR and the standard error amongst runs is shown with black bars.}
     \label{fig:runtime-decrease_scale-nop}
 \end{figure}
 
@@ -44,6 +44,75 @@ Similar to the Hivemind runs with 2 peers and 8vCPUs presented in \autoref{sec:f
                     \hfill
                 }
         }
-    \caption{Loss increase in percent for Hivemind runs with a different number of peers and vCPUs relative to baseline runs. Higher is worse.}
+    \caption{Loss increase in percent for Hivemind runs with different number of peers and vCPUs relative to baseline runs. Higher is worse.}
     \label{fig:loss-increase_scale-nop}
+\end{figure}
+
+
+\begin{figure}[h]
+    \centering
+    \foreach \lu in {True, False}
+        {
+
+            \begin{subfigure}[b]{\textwidth}
+                \centering
+                \caption{}
+                \includegraphics[width=\textwidth]{./figures/06_barplot-times_gas-1_lu-\lu_scale-nop.pdf}
+            \end{subfigure}%
+            \hfill
+        }
+    \caption{
+        Average times of data load (small circles), forward pass (backward slash), backward pass (forward slash) and optimization step (stars) for Hivemind experiments with different number of peers in seconds.
+        Runs are further aggregated across LR and the standard error amongst runs is shown with black bars (continues).
+    }
+    \label{fig:times-stacked_scale-nop}
+\end{figure}
+
+\begin{figure}[h]\ContinuedFloat
+    \centering
+    \foreach \lu in {True, False}
+        {
+
+            \begin{subfigure}[b]{\textwidth}
+                \centering
+                \caption{}
+                \includegraphics[width=\textwidth]{./figures/06_barplot-times_gas-1_lu-\lu_scale-nop.pdf}
+            \end{subfigure}%
+            \hfill
+        }
+    \caption*{Figure~\ref{fig:times-stacked_2-peers-8vCPUs}:~
+        Average times of data load (small circles), forward pass (backward slash), backward pass (forward slash) and optimization step (stars) for Hivemind experiments with different number of peers in seconds.
+        Runs are further aggregated across LR and the standard error amongst runs is shown with black bars (continues).
+    }
+\end{figure}
+
+
+\begin{figure}[h]
+    \centering
+    \foreach \gas in {1, 2}
+        {
+            \begin{subfigure}[b]{0.475\linewidth}
+                \centering
+                \caption{}
+                \includegraphics[width=\textwidth]{./figures/06_net-recv-sys-bandwidth-mbs_gas-\gas_scale-nop.pdf}
+            \end{subfigure}%
+            \hfill
+        }
+    \caption{Network received for Hivemind runs with different number of peers and vCPUs. Values $\geq 20$ MB/s are hidden and runs are aggregated across LR.}
+    \label{fig:net-recv-sys-bandwidth-mbs_scale-nop}
+\end{figure}
+
+\begin{figure}[h]
+    \centering
+    \foreach \gas in {1, 2}
+        {
+            \begin{subfigure}[b]{0.475\linewidth}
+                \centering
+                \caption{}
+                \includegraphics[width=\textwidth]{./figures/06_net-sent-sys-bandwidth-mbs_gas-\gas_scale-nop.pdf}
+            \end{subfigure}%
+            \hfill
+        }
+    \caption{Network sent for Hivemind runs with different number of peers and vCPUs. Values $\geq 20$ MB/s are hidden and runs are aggregated across LR.}
+    \label{fig:net-sent-sys-bandwidth-mbs_scale-nop}
 \end{figure}

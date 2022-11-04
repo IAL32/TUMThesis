@@ -5,4 +5,4 @@ indent.log
 venv/
 .env
 viz/**/*.csv
-__pycache__/*
+__pycache__/
