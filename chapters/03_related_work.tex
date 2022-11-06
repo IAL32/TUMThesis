@@ -7,8 +7,8 @@ We show that increasing the number of machines and the frequency of communicatio
 
 Recently, training neural networks using large or very large batches \cite{DBLP:journals/corr/KeskarMNST16, 10.48550/arxiv.1705.08741} has gained traction amongst researchers.
 Hivemind allows setting different strategies for when parameters and model states are averaged, effectively simulating larger batches.
-However, in their original paper \cite{ryabinin2020learning} the authors do not go into the details about what is the rationale for their specific algorithm implementation, and its effect on training.
-Instead, they focus on the Mixture-of-Experts algorithm implementation for Hivemind, which has not yet been tested in a real-life scenario because the software is yet to be completed.
+\cite{DBLP:journals/corr/abs-2106-10207}
+
 In this thesis, we would like to provide a deeper insight into the effects of Hivemind when training with larger batches, tuning the local updates setting and implementing gradient accumulation to our training experiments.
 
 It is challenging to find a good balance between creating experiments that cover a lot of parameters and practicality.

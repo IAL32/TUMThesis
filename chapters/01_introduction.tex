@@ -38,9 +38,7 @@ This problem is exacerbated by factors such as high GPU prices and much slower g
     \includegraphics[width=\textwidth]{./figures/model-size-over-time.pdf}
 \end{figure}
 
-The characteristics of the latest GPU released by NVIDIA earlier in 2022, the H100 with 80GB of memory, an amount that hasn't changed since its direct predecessor A100.
-
-To tackle this problem, practitioners studied and developed distributed computing techniques to train models that do not fit entirely in a single GPU's memory, distributing the training load to potentially thousands of devices.
+To tackle the above challenges, practitioners studied and developed distributed computing techniques to train models that do not fit entirely in a single GPU's memory, distributing the training load to potentially thousands of devices.
 One of the first, most prominent examples of distributed parallelism is the AlexNet network \cite{alexnet2012}, summarized in \autoref{fig:alexnet}.
 
 \begin{figure}[h]
@@ -49,32 +47,28 @@ One of the first, most prominent examples of distributed parallelism is the Alex
     \includegraphics[width=\textwidth]{./figures/alexnet.pdf}
 \end{figure}
 
-Since then, the area of distributed training for neural networks has expanded, eventually leading to the creation of Hivemind.
-Most of the frameworks and papers built on top of the techniques presented previously approach scalability issues by employing tremendous amounts of expensive, top-of-the-art and homogeneous hardware.
-However, universities, small companies and hobbyists that want to train the models described in these papers do not necessarily have access to a such vast amount of resources, limiting possibilities and research directions.
+Since then, techniques such as data and model parallelism have been widely adopted by the scientific community, leading to models with a huge number of parameters.
+However, most of the frameworks and papers built on top of these techniques perform training using large amounts of expensive, top-of-the-art and homogeneous hardware.
+This has become a problem for universities and small companies that want to train the models described in these papers, as they do not necessarily have access to a such vast amount of resources.
 
-The framework Hivemind \cite{riabinin2020hivemind} aims to help with these issues by allowing distributed neural network training across the internet using heterogeneous devices.
-The authors provide two types of training: \textit{decentralized parameter averaging} and \textit{decentralized mixture-of-experts}.
+A solution to this issue is \textit{volunteer computing}, a paradigm in which people donate their idle computing resources such as laptops and other personal devices to solve hard problems.
+The framework Hivemind \cite{riabinin2020hivemind} is a framework that enables volunteer computing across the internet for neural network training.
+It implements two fundamental training algorithms, Moshpit SGD \cite{DBLP:journals/corr/abs-2103-03239} and DeDLOC \cite{DBLP:journals/corr/abs-2106-10207}.
+They have successfully experimented with training a modified version of DALL-E with 40 peers \cite{learning30:online} who have donated their computing power through free resources such as Google Colab or their personal hardware.
+However, the authors did not show the experiment results of using different settings of Hivemind.
 
-Hivemind implements two training algorithms: ``Decentralized Mixture-of-Experts'' (DMoE) \cite{ryabinin2020learning} and ``Parameter Averaging''.
-In this thesis, we will focus our efforts on decentralized parameter averaging.
-With this technique, every node participating in a Hivemind training network must have a copy of the model in its local memory.
-Each node performs training at its own pace, processing samples toward a global goal called ``target batch size''.
-Once this goal has been reached, one or two averaging rounds starts, depending on Hivemind settings.
-The final gradients to apply to a model are calculated depending on the contribution in terms of the number of samples done by each peer.
-This ensure stability in case of peer failure, removings its contribution towards the final calculation.
 
-Decentralized parameter averaging has shown promising results \cite{learning30:online}, successfully training a modified version of DALL-E using 40 peers over two months.
-This is by far one of the largest distributed experiments in deep learning that make use of heterogeneous devices to collaboratively train a single neural network model.
-In this thesis, we analyze the effects of several hyperparameters settings of Hivemind on training.
+Furthermore, training with smaller models such as ResNet18 \cite{he2015deep} and with a reliable network connection has not been tested.
+
+In this thesis, we analyze the effects of several hyperparameters settings of Hivemind while training ResNet18.
 We selected the ResNet18 \cite{he2015deep} model as our model of reference, trained on Imagenet-1k \cite{deng2009imagenet}.
 
 \section{Motivation}
 
 Training big neural network models is a big challenge in today's research, and access to the latest hardware makes this even more challenging.
 Over the last few years, research and software libraries like Hivemind have been focused on reducing and optimizing deep neural network model training times with techniques such as data and model parallelism.
-Hivemind has already been tested by its authors in a real-life scenario by successfully training a modified version of DALL-E over two months with 40 peers from all over the world.
-However, there is little information on their work about the negative implications of applying Hivemind in other scenarios with different hyperparameters.
+Hivemind has already been tested by its authors in a real-life scenario by successfully training a modified version of DALL-E over two months with 40 peers from all over the world \cite{DBLP:journals/corr/abs-2106-10207}
+In particular, 
 This thesis aims to fill that gap by performing 288 synthetic experiments on ResNet18 trained on Imagenet-1k with different configurations.
 The insights gained from the results of this work can help broaden the applications of Hivemind.
 

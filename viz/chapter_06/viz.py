@@ -155,7 +155,7 @@ def viz_column_all(chapter: str, filename: str, column: str, **kwargs):
         viz_column(data_gas, chapter, filename, column, gas, **kwargs)
 
 
-def viz_column(data, chapter: str, filename: str, column: str, gas, is_nop=False, ylabel="", ylim=()):
+def viz_column(data, chapter: str, filename: str, column: str, gas, is_nop=False, ylabel="", xaxislabel="", ylim=()):
     cleaned_data = data
     if len(ylim) > 0:
         cleaned_data = cleaned_data[cleaned_data[column] < ylim[1]]
@@ -175,7 +175,7 @@ def viz_column(data, chapter: str, filename: str, column: str, gas, is_nop=False
     g.set_ylabels("")
     g.figure.supylabel(ylabel, fontsize=12)
     g.set_titles(row_template="BS = {row_name}", col_template="LU = {col_name}")
-    g.set_xlabels("TBS")
+    g.set_xlabels(xaxislabel)
     if len(ylim) > 0:
         plt.ylim(*ylim)
 
