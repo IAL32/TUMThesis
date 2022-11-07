@@ -1,22 +1,42 @@
 \chapter{Related Work}\label{chapter:related-work}
-Data parallelism has been leveraged to improve the performance of machine learning systems \cite{alexnet2012}.
-Several common frameworks implement data parallelism such as PyTorch \footnote{\href{https://pytorch.org/}{https://pytorch.org/}} and TensorFlow\footnote{\href{https://tensorflow.org/}{https://tensorflow.org/}} through a high-level API.
-There are already some works that analyze the effects of data parallelism \cite{DBLP:journals/corr/abs-2003-11316,DBLP:journals/corr/abs-1811-03600}.
-Throughout our experiments, we have found similar results in terms of data parallelism limits.
-We show that increasing the number of machines and the frequency of communication between them when training with Hivemind can reach a point of diminishing returns.
+In this chapter, we provide the necessary background to understand this thesis and discuss related work.
 
-Recently, training neural networks using large or very large batches \cite{DBLP:journals/corr/KeskarMNST16, 10.48550/arxiv.1705.08741} has gained traction amongst researchers.
-Hivemind allows setting different strategies for when parameters and model states are averaged, effectively simulating larger batches.
-\cite{DBLP:journals/corr/abs-2106-10207}
+\section{Data Parallelism}
+Throughout the years, datasets and machine learning models have grown in size, requiring distributed techniques to train them efficiently.
+Data parallelism is the most common type of distributed learning and has been implemented on many common frameworks such as PyTorch \footnote{\href{https://pytorch.org/}{https://pytorch.org/}} and TensorFlow\footnote{\href{https://tensorflow.org/}{https://tensorflow.org/}} through a high-level API.
+It has been known however that operations such as updating and distributing large neural network models can run into network bottlenecks \cite{10.48550/arxiv.1705.08741, DBLP:journals/corr/abs-2003-11316, 10.5555/2999134.2999271, DBLP:journals/corr/abs-1811-03600}.
+Because of this, operations such as pruning and quantization are common to reduce the impact of communication in a distributed training setting \cite{10.48550/arxiv.2003.03033, 10.48550/arxiv.1510.00149}.
+Less known are the effects of preprocessing bottlenecks, which can severely affect the performance of models before training even starts \cite{isenko2022bottleneck, 10.1145/3448016.3457566}.
+In this thesis, we show a general approach for studying and evaluating the effects of bottlenecks in data parallelism using Hivemind.
 
-In this thesis, we would like to provide a deeper insight into the effects of Hivemind when training with larger batches, tuning the local updates setting and implementing gradient accumulation to our training experiments.
+\section{Large Batch Training}
+Training neural networks using large or very large batches \cite{DBLP:journals/corr/KeskarMNST16, 10.48550/arxiv.1705.08741} has gained traction amongst researchers.
+Using small batch sizes is generally preferable when using minibatch SGD algorithms as it allows escaping local minima within a few iterations.
+Increasing the number of minibatches also decreases the update frequency, making training faster.
+However, this also leads to the possibility of getting stuck on local minima due to less noisy updates and thus low training performance overall.
 
-It is challenging to find a good balance between creating experiments that cover a lot of parameters and practicality.
-More often than not, it is not possible to explore all possible combinations and tune every knob of a system, due to budget or time restrictions.
-As explained by \Citeauthor{DBLP:journals/corr/abs-1811-03600} in their analysis, budgets are also often ignored during the evaluation of novel techniques.
-This can lead to a bias towards positive results, limiting the application of the lessons learned from each research paper.
-In this thesis, we set an arbitrary budget of 320,000 samples per experiment to evaluate our metrics.
-We further limit the number of hyperparameters to explore for both regular training and baseline experiments and Hivemind experiments.
-In total, we produced 288 experiments that cover a small number of settings.
-This allows us to focus on the effects of tuning single parameters rather than trying to achieve the best possible model.
+The attractiveness of using large batches is to leverage the parallelism properties of distributed optimization algorithms.
+\citeauthor{goyal2017accurate} have managed to train Imagenet in around 1 hour using a batch size of 8192 \cite{goyal2017accurate}.
+This was possible as they showed that the decrease in performance when increasing the minibatch size is highly non-linear, staying constant for values up until 8192 and increasing rapidly afterward.
+As training can still diverge in the first parts of training, they introduce a warmup period where a single node starts training, after which more nodes can join.
 
+In their experiments, \citeauthor{ryabinin2020learning} show that it is possible to perform large batch training in a volunteer computing setting using Hivemind \cite{ryabinin2020learning, DBLP:journals/corr/abs-2106-10207}.
+Hivemind allows setting different strategies for when parameters and model states are averaged, effectively simulating larger batches across participating peers.
+However, there is a limited amount of experiments showcasing different Hivemind configurations in a controlled environment.
+
+\section{Volunteer Computing}
+Researchers today are dealing with hard and complex problems such as particle simulation and protein folding.
+Because of their nature, these problems require immense amounts of computational power, which are not always available to single institutions.
+Supercomputers can help tackle these problems, but access to them is limited.
+In the early days of distributed computing, it was found that researchers could leverage the power of volunteers who donate their idle devices to help solve their problems.
+This paradigm is denominated \textit{volunteer computing} (VC).
+
+Standard data parallelism distributed algorithms are made with node reliability in mind, and a node failure may simply cause the whole training to fail.
+However, in VC, a node dropping off mid-training is an expected case.
+For these reasons, few works have successfully implemented VC for deep learning training.
+Most VC works use a server-client infrastructure, where the server is hosted and managed by the runners of the experiments and the clients are the volunteers \cite{Atre_2021, 8886576}.
+The server in this case becomes a single point of failure and possible bottleneck, which can become an issue if an elevated number of volunteers joins the training.
+
+The Hivemind framework \cite{ryabinin2021mosphit} uses a modified version of minibatch SGD \cite{ryabinin2021mosphit} that considers node failure.
+Furthermore, the authors implemented DeDLOC, a dedicated training algorithm \cite{DBLP:journals/corr/abs-2106-10207} that removes the single node of failure bottleneck.
+Hivemind has been proven successful in an experiment training a modified version of DALL-E \cite{ramesh2021zero} with 40 volunteers over two months.

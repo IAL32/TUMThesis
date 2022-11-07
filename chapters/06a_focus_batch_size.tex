@@ -98,9 +98,10 @@ There are two important factors to take into consideration before making a such 
 \end{figure}
 
 Depending on the optimizer used for training a neural network model, the number of parameters can become huge.
-When performing an optimizer state averaging state, sending a high amount of parameters can lead to high communication overhead, and thus, reduced performance.
-We can see this effect in \autoref{fig:net-recv-sys-bandwidth-mbs_2-peers-8vCPUs} and \autoref{fig:net-sent-sys-bandwidth-mbs_2-peers-8vCPUs}.
+When performing an optimizer state averaging state, sending a high amount of parameters can lead to high communication overhead, and thus, reduced performance \cite{10.48550/arxiv.1705.08741, DBLP:journals/corr/abs-2003-11316, 10.5555/2999134.2999271, DBLP:journals/corr/abs-1811-03600}.
+We can see a reduced version of this effect in \autoref{fig:net-recv-sys-bandwidth-mbs_2-peers-8vCPUs} and \autoref{fig:net-sent-sys-bandwidth-mbs_2-peers-8vCPUs}.
 As the batch size increases, nodes send and receive more data, increasing bandwidth utilization.
+In our experiments, we never reached network bandwidth saturation for both receive and send operations.
 
 \begin{figure}[h]
     \centering

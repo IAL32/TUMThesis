@@ -61,7 +61,7 @@ def scan_history(run: wandb.apis.public.Run):
         try:
             history = run.history(keys=[
                 "_timestamp",
-                "train/step",
+                "train/loss",
                 "bandwidth/net_recv_sys_bandwidth_mbs",
                 "bandwidth/net_sent_sys_bandwidth_mbs",
                 "train/samples_ps",
@@ -91,7 +91,15 @@ def scan_history(run: wandb.apis.public.Run):
             missing_time_s -= row["train/model_backward_s"]
         sum_total_time_s += total_time_s
         sum_missing_time_s += missing_time_s
-        row_history.append({**row, **config, "name": run.name, "train/total_time_s": total_time_s, "train/missing_time_s": missing_time_s})
+        row["_timestamp"] = pd.to_datetime(row['_timestamp'], unit='s')
+
+        row_history.append({
+            **row,
+            **config,
+            "name": run.name,
+            "train/total_time_s": total_time_s,
+            "train/missing_time_s": missing_time_s,
+        })
 
     row_summary = {
         **run.summary._json_dict,
