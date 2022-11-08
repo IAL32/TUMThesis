@@ -2,20 +2,16 @@
 
 The amount of computing resources required to train state-of-the-art deep neural networks is steadily growing.
 Most institutions cannot afford the latest technologies, which are sometimes needed to keep up with today's demanding deep neural network research.
-Access to powerful devices is therefore limited to a few parties, slowing down research.
+Access to powerful devices is therefore limited to a few parties.
+To tackle this, distributed training techniques such as volunteer computing can be employed.
 
 Hivemind \cite{hivemind} is an open-source framework that enables collaborative model training using a large number of heterogeneous devices from universities, companies, and volunteers.
-The framework implements two decentralized training algorithms: ``Decentralized Mixture-of-Experts'' (DMoE) and ``Parameter Averaging''.
-In this thesis, we focus on the effects of training with Hivemind using parameter averaging technique compared to regular training.
-Parameter averaging replicates a model on all training network's peers, averaging their parameters after a certain amount of samples have been globally processed.
-
 In Hivemind, every device participating in the computation may differ in its characteristics, featuring different architectures and network speeds.
-In an interactive demonstration \cite{hivemind}, 40 devices jointly trained a modified DALL-E \cite{ramesh2021zero} neural network model over 2.5 months using Hivemind's parameter averaging training technique.
-The reported results, however, do not include the participant's device information and metrics.
-Without them, it is not possible to perform an independent analysis of the effects of different configurations on training.
+The authors performed an interactive demonstration of collaborative computing with 40 volunteers, training a modified version of DALL-E \cite{ramesh2021zero} neural network model over 2 months.
+The reported results, however, do not include information about the effects of different Hivemind configurations on training.
 
-In our experiments, we evaluate the effect of several aspects of training with Hivemind in a controlled cluster setup.
-The experiments shown in this thesis use different settings such as the number of peers involved in the training, using local updates, batch size, learning rate and more.
-We prove that Hivemind can reach a target loss faster on specific scenarios and settings compared to regular training with a single node.
-We also show that despite the communication overhead, Hivemind can still outperform the training baseline in terms of speedup
+In this thesis, we focus on the effects of training ResNet18 \cite{he2015deep} on Imagenet-1k \cite{deng2009imagenet} with Hivemind when using the parameter averaging algorithm \cite{DBLP:journals/corr/abs-2106-10207} compared to regular training.
+We evaluate the effect of several aspects of training with Hivemind in a controlled cluster setup through 288 synthetic experiments.
+Each experiment uses different training and Hivemind settings such as the number of peers involved in the training, using local updates, batch size, learning rate.
+We show that training with Hivemind can be beneficial in terms of training time in specific scenarios and settings compared to regular training with a single node.
 Finally, we provide some considerations and lessons learned by summarizing the results of our experiments.
