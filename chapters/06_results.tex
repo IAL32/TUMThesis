@@ -1,4 +1,4 @@
-\chapter{Results}\label{chapter:results}
+\chapter{RESULTS}\label{chapter:results}
 
 In this thesis, we are not looking to obtain the best possible combination of hyperparameters for training loss or model accuracy.
 Instead, we want to observe the effects on training with Hivemind when tuning common hyperparameters such as batch size and learning rate and Hivemind hyperparameters such as the TBS.
@@ -79,6 +79,12 @@ The learning rate (LR) does not affect the time it takes for each step to comple
 By contrast, the number of gradient accumulation steps (GAS) seems to shave off some time for every batch size, although the total runtimes in \autoref{fig:baseline-runtimes} do not seem to reflect this improvement.
 Throughout this chapter, we will keep showing GAS runs separately, as it still might affect some other aspects of training.
 
+In the same graph, we can also notice the big impact that data loading has on every step.
+Almost 1/2 of the total time for each step consists in waiting for the data to load.
+As we increase the number of cores per peer, CPU utilization decreases, as the CPU is idle during I/O wait times and normal operations such as forward and backward pass take less time.
+This is a bottleneck that can easily be tackled through several means, such as having a faster storage backend or if that is not available, faster data loader frameworks and algorithms \cite{isenko2022bottleneck, leclerc2022ffcv}.
+Future experiments can make use of local, faster storage backed by SSD to achieve faster data load speeds, helping us rule out the effects of data loading on training with Hivemind.
+
 \begin{figure}[h]
     \centering
     \includegraphics[width=\textwidth]{./figures/06_barplot-times_baseline-16vCPUs-GAS-1.pdf}
@@ -91,34 +97,8 @@ Throughout this chapter, we will keep showing GAS runs separately, as it still m
 
 \input{chapters/06a_focus_batch_size.tex}
 
-\section{Focus on effects of gradient accumulation}
+\input{chapters/06b_focus_gradient_acc.tex}
 
-Gradient accumulation allows the simulation of bigger batches within a single node by accumulating gradients every time the backpropagation step is performed.
-After GAS steps, the optimizer step is performed and the gradients are finally applied to the trained model.
-In theory, reducing the frequency of executing the optimizer step should also reduce the total time spent applying the gradients to the mode.
-In practice, for small models like ResNet18, this doesn't make a discernible difference as shown in \autoref{fig:times-stacked_2-peers-8vCPUs}, where the optimizer step takes 0.05 seconds on average.
-
-For loss, the scenario is quite different.
-In \autoref{fig:loss-increase_2-peers-8vCPUs} we can see the loss increase with respect to the baseline runs in four different configurations:
-\begin{itemize}
-    \item GAS=1, LU=True; 
-    \item GAS=1, LU=False;
-    \item GAS=2, LU=True;
-    \item GAS=2, LU=False;
-\end{itemize}
-
-With both LU=True and LU=False, we can notice a better loss with GAS=2 by 5-10\% compared to GAS=1 for experiments with high lower LR.
-As LR increases, the gap between GAS=1 and GAS=2 closes, with the gap getting even closer for smaller TBS values.
-
-Finally, the impact on network utilization using our configuration is minimal.
-Possibly for scenarios with more traffic, high values of GAS may help reduce the number of times that the Hivemind optimizer is called, reducing step time.
-
-Evaluating the benefits of using gradient accumulation and averaging, we can say the following when training ResNet18 on Imagenet with Hivemind:
-\begin{itemize}
-    \item the smaller the TBS, the less the difference between GAS=1 and GAS=2 matters. It remains an open question whether this statement holds for higher values of GAS.
-    \item for high values of LR, GAS does not seem to affect training as much as for low values of LR;
-\end{itemize}
-
-\section{Focus on effects of local updates}
+\input{chapters/06c_focus_local_updates.tex}
 
 \input{chapters/06d_focus_nop.tex}

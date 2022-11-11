@@ -1,1 +1,13 @@
-\chapter{Conclusions}\label{chapter:conclusions}
+\chapter{CONCLUSIONS}\label{chapter:conclusions}
+In this work, we analyze Hivemind, a framework for deep learning volunteer computing over the internet.
+The analysis focuses on the effects of common training hyperparameters such as batch size and training rate, as well as Hivemind hyperparameters such as training batch size and the number of peers.
+We show that it can successfully be used to collaboratively train smaller deep learning networks such as ResNet18 using the Imagenet dataset, with a few caveats.
+
+Our investigation on training hyperparameters and Hivemind settings reveals three major points for the setup that we selected:
+first, we found that training with the Hivemind local updates setting turned on is beneficial for our particular setup, at virtually no cost;
+second, using gradient accumulation can lead to worse loss when enabling local updates and better loss when disabling it;
+third, network bottlenecks for such a low number of parameters are not an issue in any scenario.
+
+Finally, we show the effects of training Hivemind on more than two devices while maintaining the same sample and computational power budget.
+There is a sweet spot in terms of runtime benefits and loss when adding more nodes.
+After adding enough peers to a training network, the reduction of runtime does not increase enough to justify loss penalties.

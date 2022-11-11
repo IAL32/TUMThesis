@@ -1,0 +1,27 @@
+\section{Focus on effects of gradient accumulation}
+
+Gradient accumulation allows the simulation of bigger batches within a single node by accumulating gradients every time the backpropagation step is performed.
+After GAS steps, the optimizer step is performed and the gradients are finally applied to the trained model.
+In theory, reducing the frequency of executing the optimizer step should also reduce the total time spent applying the gradients to the mode.
+In practice, for small models like ResNet18, this doesn't make a discernible difference as shown in \autoref{fig:times-stacked_2-peers-8vCPUs}, where the optimizer step takes 0.05 seconds on average.
+
+For loss, the scenario is quite different.
+In \autoref{fig:loss-increase_2-peers-8vCPUs} we can see the loss increase with respect to the baseline runs in four different configurations:
+\begin{itemize}
+    \item GAS=1, LU=True; 
+    \item GAS=1, LU=False;
+    \item GAS=2, LU=True;
+    \item GAS=2, LU=False;
+\end{itemize}
+
+With both LU=True and LU=False, we can notice a better loss with GAS=2 by 5-10\% compared to GAS=1 for experiments with high lower LR.
+As LR increases, the gap between GAS=1 and GAS=2 closes, with the gap getting even closer for smaller TBS values.
+
+Finally, we notice that the impact on network utilization using our experiment combination of configurations is minimal.
+For scenarios with more traffic, high values of GAS may help reduce the number of times that the Hivemind optimizer is called, reducing step time.
+
+Evaluating the effects of using gradient accumulation and averaging, we can say the following when training ResNet18 on Imagenet with Hivemind:
+\begin{itemize}
+    \item the smaller the TBS, the less the difference between GAS=1 and GAS=2 matters. It remains an open question whether this statement holds for higher values of GAS.
+    \item for high values of LR, GAS does not seem to affect training as much as for low values of LR;
+\end{itemize}

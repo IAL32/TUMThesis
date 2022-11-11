@@ -1,1 +1,27 @@
-\chapter{Future Work}\label{chapter:future-work}
+\chapter{FUTURE WORK}\label{chapter:future-work}
+
+Hivemind is a great tool enabling collaborative training for neural networks.
+However, studies targeting this area are limited, thus limiting the possibilities for comparison between other frameworks and approaches.
+It may be possible to build collaborative training frameworks on top of the basic Hivemind concepts which are tuned specifically for fast connections.
+This could allow stable collaborative training amongst entities with idle resources.
+Entities that do not wish to keep training may be able to just drop out of the peer network without a huge impact on overall training.
+
+Other applications for Hivemind can be distributed secure training.
+Some companies may be reluctant to share their data but may be willing to use their own resources to collaboratively train a model with other entities.
+Hivemind may help by allowing companies with sensitive data to join a collaborative network without having to share their data.
+Future work may analyze the impact of using different datasets on training with Hivemind, and potential security issues that may arise with gradient sharing, authentication and byzantine scenarios \cite{DBLP:journals/corr/abs-2106-11257}.
+
+Our approach in analyzing Hivemind bottlenecks was primarily focused on a small set of hyperparameters, both for training and for Hivemind.
+Furthermore, the model that we chose for our experiments, ResNet18, is very small compared to other works.
+Future experiments on Hivemind should focus on reaching a network bottleneck without any compression, and then analyze the effects of using different gradient compression strategies.
+This can help us understand better the effects of introducing additional time for computation versus time used for communication.
+
+Our cluster uses CEPH as the distributed data store, which has been great for ease of use.
+However, we encountered many limitations along the way, such as sudden spikes in data load times caused by other colleagues performing read/write operations on the cluster.
+Because of this, many experiments had to be repeated to avoid exaggerated skews in data load times.
+For better and more reliable results, future work should stick to local I/O operations to rule out possible external pollution of experiment results.
+
+Finally, in this thesis we focused on changing several trainign hyperparameters, skipping the selection and the impact of optimizers and schedulers.
+Past work suggested pairing large batch training with specialized optimizer functions such as LARS for convolution-based networks \cite{you2017scaling, DBLP:journals/corr/KeskarMNST16} and LAMB for language-based networks \cite{DBLP:journals/corr/abs-1904-00962}.
+Testing Hivemind by simulating larger batches has been previously done by Hivemind authors \cite{DBLP:journals/corr/abs-2106-10207}, but it was only limited to SwAV \cite{DBLP:journals/corr/abs-2006-09882}.
+Future work may try to perform large batch training on Hivemind by exploring several combinations of hyperparameters with the scope of achieving comparable results with the current state-of-art.

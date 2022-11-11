@@ -1,4 +1,4 @@
-\chapter{Related Work}\label{chapter:related-work}
+\chapter{RELATED WORK}\label{chapter:related-work}
 In this chapter, we provide the necessary background to understand this thesis and discuss related work.
 
 \section{Data Parallelism}
@@ -6,6 +6,7 @@ Throughout the years, datasets and machine learning models have grown in size, r
 Data parallelism is the most common type of distributed learning and has been implemented on many common frameworks such as PyTorch \footnote{\href{https://pytorch.org/}{https://pytorch.org/}} and TensorFlow\footnote{\href{https://tensorflow.org/}{https://tensorflow.org/}} through a high-level API.
 It has been known however that operations such as updating and distributing large neural network models can run into network bottlenecks \cite{10.48550/arxiv.1705.08741, DBLP:journals/corr/abs-2003-11316, 10.5555/2999134.2999271, DBLP:journals/corr/abs-1811-03600}.
 Because of this, operations such as pruning and quantization are common to reduce the impact of communication in a distributed training setting \cite{10.48550/arxiv.2003.03033, 10.48550/arxiv.1510.00149}.
+Despite these efforts, increasing the number of nodes and model size can still cause network bottlenecks.
 Less known are the effects of preprocessing bottlenecks, which can severely affect the performance of models before training even starts \cite{isenko2022bottleneck, 10.1145/3448016.3457566}.
 In this thesis, we show a general approach for studying and evaluating the effects of bottlenecks in data parallelism using Hivemind.
 
