@@ -7,10 +7,10 @@ Taking a look at \autoref{fig:runtime-decrease_2-peers-8vCPUs}, we can notice th
 As we can notice by the very low bandwidth usage in both \autoref{fig:net-recv-sys-bandwidth-mbs_2-peers-8vCPUs} and \autoref{fig:net-sent-sys-bandwidth-mbs_2-peers-8vCPUs}, LU also has little effect on networking for our setup.
 This may be due to several factors, such as the relatively small size of the model and the optimizer
 
-In \autoref{fig:loss-increase_2-peers-8vCPUs} the difference between the two modes in terms of loss increase compared to the baseline is very big.
-Disabling local updates consistently leads to worse performance compared to the baseline experiments with the lowest loss.
-However, for low loss increase, the results are not entirely relevant.
-The final loss is still too high to be considered a good training result compared to the baseline experiments.
+In \autoref{fig:loss-increase_gas-1_2-peers-8vCPUs} and \autoref{fig:loss-increase_gas-2_2-peers-8vCPUs} the difference between the two modes in terms of accuracy decrease compared to the baseline is quite noticeable.
+Disabling local updates consistently leads to worse performance compared to the baseline experiments with the highest accuracay.
+However, for low accuracy increase, the results are not entirely relevant.
+The final accuracy is still too low to be considered a good training result compared to the baseline experiments.
 
 For both GAS=1 and GAS=2, we can observe that the penalty for disabling local updates with large values of target batch size is very big.
 As we increase the TBS, this penalty goes up even further, sometimes more than 50\% compared to enabling local updates.
@@ -19,14 +19,14 @@ It is currently an open question if this will hold for larger models and a highe
 
 Increasing GAS also yields interesting results for LU=True.
 Because GAS=2 prevents updating the underlying model for one step, we can see the negative effects of enabling local updates, which rely on applying the gradients at every step to perform averaging between all peers.
-We can see this effect particularly for larger LR values.
+We can see this effect especially for larger LR values.
 This can have serious implications when simulating bigger batch sizes, as this is usually done by accumulating gradients and thus increasing GAS.
 
 In short, this is what we learned from the effects of local updates:
 \begin{itemize}
     \item Enabling local updates seems to work best at virtually no cost to overall performance using the setup presented in this thesis.
-    \item Disabling local updates is more unforgiving in terms of the loss increase, with penalties increasing as the target batch size increases and thus the waiting time between averaging rounds.
+    \item Disabling local updates is more unforgiving in terms of the accuracy decrease, with additional penalties as the target batch size increases and thus the waiting time between averaging rounds.
           As long as peers can communicate as often as possible however this does not seem to be an issue.
-    \item Increasing GAS with local updates enabled may cause worse performance in terms of loss.
-    \item This is the opposite when disabling local updates, where increasing GAS leads to overall better loss.
+    \item Increasing GAS with local updates enabled may cause worse performance in terms of accuracy, taking into account baseline runs with good performance.
+    \item This is the opposite when disabling local updates, where increasing GAS leads to overall better accuracy.
 \end{itemize}

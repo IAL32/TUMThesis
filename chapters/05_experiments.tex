@@ -130,6 +130,12 @@ Hivemind runs involve more than one machine per experiment, with each machine co
 We assume that an experiment ends when the last peer finishes processing the samples it has been assigned.
 Thus, for Hivemind runs we chose to use the maximum runtime amongst all peers to be used for comparison and analysis.
 
+To compare baseline and Hivemind runs, we selected training accuracy as the metric of choice for three reasons.
+First, previous work on distributed training optimization tends to use accuracy to report their improvements, thus, using accuracy ourselves helps make better comparisons with other works.
+Second, accuracy is a function of the number of errors done across batches, while loss is a distance function that determines how big these errors are.
+This means that using accuracy is less subjective to which distance function we select, allowing for even broader comparisons for other works.
+Finally, training loss can be very unstable, potentially leading to very low values of loss at random, while accuracy is much more stable in that regard.
+
 For training accuracy, we always select the average between the maximum training accuracy reached by the baseline re-runs, and the maximum accuracy reached by all peers for Hivemind runs.
 We chose the maximum for the Hivemind runs because the model being trained is essentially one.
 When saving the model for inference purposes, the selection of which peer's model to pick should lie on the model with the maximum loss achieved.

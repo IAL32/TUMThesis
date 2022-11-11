@@ -9,6 +9,10 @@ In this thesis, we analyze the performance and limits of training using Hivemind
 We begin this chapter by showing the results that we have obtained with the baseline runs.
 As mentioned previously in \autoref{chapter:setup}, all baseline experiments are executed on machines with the same configuration, and the total number of samples processed is always the same.
 \autoref{fig:baseline-runtimes} shows the average runtimes for baseline runs in minutes.
+As we might have expected, most runs take more or less the same amount of time, as the total number of samples processed is the same for every run
+\footnote{
+    BS=128 takes more time due to resource contention happening during the execution of the baseline runs.
+}.
 
 \begin{figure}[ht]
     \centering
@@ -24,7 +28,7 @@ As mentioned previously in \autoref{chapter:setup}, all baseline experiments are
     \label{fig:baseline-losses}
 \end{figure}
 
-Baseline runs do not run distributed algorithms, all Hivemind features are switched off and machines do not communicate with each other.
+Baseline runs do not use distributed algorithms and all Hivemind features are switched off.
 However, \autoref{fig:net-recv_baseline} shows that there is some network activity.
 On average, every machine receives a constant 1.5 MB/s of data on its network.
 This may be due to several factors, such as KVM management data, OpenNebula pings, and CEPH data being read.
