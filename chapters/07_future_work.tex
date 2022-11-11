@@ -6,7 +6,7 @@ It may be possible to build collaborative training frameworks on top of the basi
 This could allow stable collaborative training amongst entities with idle resources.
 Entities that do not wish to keep training may be able to just drop out of the peer network without a huge impact on overall training.
 
-Other applications for Hivemind can be distributed secure training.
+Other applications for Hivemind can be secure, distributed training.
 Some companies may be reluctant to share their data but may be willing to use their own resources to collaboratively train a model with other entities.
 Hivemind may help by allowing companies with sensitive data to join a collaborative network without having to share their data.
 Future work may analyze the impact of using different datasets on training with Hivemind, and potential security issues that may arise with gradient sharing, authentication and byzantine scenarios \cite{DBLP:journals/corr/abs-2106-11257}.
@@ -16,12 +16,18 @@ Furthermore, the model that we chose for our experiments, ResNet18, is very smal
 Future experiments on Hivemind should focus on reaching a network bottleneck without any compression, and then analyze the effects of using different gradient compression strategies.
 This can help us understand better the effects of introducing additional time for computation versus time used for communication.
 
-Our cluster uses CEPH as the distributed data store, which has been great for ease of use.
+Our cluster uses CEPH as the distributed data store, which has been great for ease of use and bootstrapping our experiments.
 However, we encountered many limitations along the way, such as sudden spikes in data load times caused by other colleagues performing read/write operations on the cluster.
 Because of this, many experiments had to be repeated to avoid exaggerated skews in data load times.
 For better and more reliable results, future work should stick to local I/O operations to rule out possible external pollution of experiment results.
+Newer data loading algorithms such as FFCV \cite{leclerc2022ffcv} can help reduce data loading times even more, further which may have a big impact when training with lower-end devices.
 
-Finally, in this thesis we focused on changing several trainign hyperparameters, skipping the selection and the impact of optimizers and schedulers.
+We have run Hivemind using low-tier devices with up to 8vCPUs using 8GB of RAM, which are more than good enough for training ResNet18.
+However, current state-of-the-art demands training deeper and bigger models such as ResNet101 and VGGNet16 \cite{10.48550/arxiv.1409.1556}.
+Running Hivemind experiments on beefier devices such as GPUs and TPUs to further reduce the time of synchronous train operations such as forward and backward pass could yield interesting results.
+This would help us get a better understanding of what Hivemind can do in the best-case scenarios and possible bottlenecks.
+
+Finally, in this thesis we focused on changing several training hyperparameters, skipping the selection and the impact of optimizers and schedulers.
 Past work suggested pairing large batch training with specialized optimizer functions such as LARS for convolution-based networks \cite{you2017scaling, DBLP:journals/corr/KeskarMNST16} and LAMB for language-based networks \cite{DBLP:journals/corr/abs-1904-00962}.
 Testing Hivemind by simulating larger batches has been previously done by the authors of Hivemind \cite{DBLP:journals/corr/abs-2106-10207}, but it was only limited to SwAV \cite{DBLP:journals/corr/abs-2006-09882}.
 Future work may try to perform large batch training on Hivemind by exploring several combinations of hyperparameters with the scope of achieving comparable results with the current state-of-art.
