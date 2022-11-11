@@ -61,7 +61,7 @@ def scan_history(run: wandb.apis.public.Run):
         try:
             history = run.history(keys=[
                 "_timestamp",
-                "train/loss",
+                "train/accuracy",
                 "bandwidth/net_recv_sys_bandwidth_mbs",
                 "bandwidth/net_sent_sys_bandwidth_mbs",
                 "train/samples_ps",
@@ -78,6 +78,7 @@ def scan_history(run: wandb.apis.public.Run):
     if retry >= MAX_RETRIES:
         raise Exception(f"Could not fetch run {run.id}")
 
+    accuracy_max = 0
     row_history = []
     sum_total_time_s = 0
     sum_missing_time_s = 0
@@ -92,6 +93,7 @@ def scan_history(run: wandb.apis.public.Run):
         sum_total_time_s += total_time_s
         sum_missing_time_s += missing_time_s
         row["_timestamp"] = pd.to_datetime(row['_timestamp'], unit='s')
+        accuracy_max = max(accuracy_max, row["train/accuracy"])
 
         row_history.append({
             **row,
@@ -105,9 +107,10 @@ def scan_history(run: wandb.apis.public.Run):
         **run.summary._json_dict,
         "train/total_time_s": sum_total_time_s / len(row_history) if len(row_history) > 0 else 1,
         "train/missing_time_s": sum_missing_time_s / len(row_history) if len(row_history) > 0 else 1,
+        "train/accuracy": accuracy_max,
     }
     row_summary["_runtime"] = row_summary["_runtime"] / 60
-    row_summary["train/loss"] = row_summary["train/loss"]["min"]
+    # row_summary["train/loss"] = row_summary["train/loss"]["min"]
 
     return row_history, row_summary, config
 
@@ -181,7 +184,10 @@ def viz_column(data, chapter: str, filename: str, column: str, gas, is_nop=False
         linewidth=0.2,
     )
     g.set_ylabels("")
-    g.figure.supylabel(ylabel, fontsize=12)
+    if gas == 1:
+        g.figure.supylabel(ylabel, fontsize=14)
+    if gas == 2:
+        g.figure.supylabel(" ", fontsize=14)
     g.set_titles(row_template="BS = {row_name}", col_template="LU = {col_name}")
     g.set_xlabels(xaxislabel)
     if len(ylim) > 0:
@@ -200,7 +206,7 @@ def load_baseline_data():
     baseline_data = pd.read_csv(os.path.abspath('') + f"/summary-baseline-16vCPUs-GAS-1.csv")
 
     baseline_data = baseline_data.groupby(["optimizer_params.lr", "batch_size_per_step", "run_name", "gradient_accumulation_steps"]) \
-        ["_runtime", "train/loss"].describe().reset_index()
+        ["_runtime", "train/accuracy"].describe().reset_index()
     baseline_data = baseline_data.sort_values(
         by=["optimizer_params.lr", "gradient_accumulation_steps"],
     )

@@ -5,6 +5,20 @@ So far, we have explored the effects on Hivemind of specific settings such as TB
 Adding more nodes to a distributed training setting can lead to bottlenecks, especially when using a client-server approach \cite{Atre_2021, 8886576}
 In this section, we answer the following research question: what are the effects of scaling up the number of machines when using Hivemind?
 
+\begin{figure}[ht]
+    \centering
+    % temporary
+    \foreach \gas in {1, 2}
+        {
+            \begin{subfigure}[t]{0.35 \textwidth}
+                \caption{}
+                \includegraphics[width=\textwidth]{./figures/06_barplot-runtime_gas-\gas_scale-nop.pdf}
+            \end{subfigure}
+        }
+    \caption{Runtime decrease in percent for Hivemind runs with 2, 4, 8, 16 peers and 8, 4, 2, 1 vCPUs respectively relative to baseline runs. Higher is better. Runs are aggregated across LR and the standard error amongst runs is shown with black bars.}
+    \label{fig:runtime-decrease_scale-nop}
+\end{figure}
+
 The frequency at which peers average their model state is directly proportional to the number of peers, the throughput per second of each peer and the TBS.
 In turn, the throughput per second is affected by several factors such as the BS, computational power of the node and wait times for I/O operations.
 
@@ -12,29 +26,8 @@ It might be difficult to isolate the effects of introducing more nodes from scal
 Thus, we decided to fix the target batch size to 1250 for this set of experiments and alter TBS, BS, LR, GAS and LU.
 
 \begin{figure}[ht]
-    \centering
     % temporary
-    \foreach \gas in {1, 2}
-        {
-            \begin{subfigure}[b]{0.475 \textwidth}
-                \caption{}
-                \includegraphics[width=\textwidth]{./figures/06_barplot-runtime_gas-\gas_scale-nop.pdf}
-            \end{subfigure}%
-            \hfill
-        }
-    \caption{Runtime decrease in percent for Hivemind runs with different number of peers and vCPUs relative to baseline runs. Higher is better. Runs are aggregated across LR and the standard error amongst runs is shown with black bars.}
-    \label{fig:runtime-decrease_scale-nop}
-\end{figure}
-
-As we might expect, \autoref{fig:runtime-decrease_scale-nop} shows that increasing the number of peers dramatically decreases the time taken to go through each experiment's budget of 320,000 samples.
-However, the runtime increase appears to be logarithmic.
-The highest jump in runtime performance is between using one single peer (Hivemind disabled) and using two peers (Hivemind enabled).
-Introducing four peers also cuts down runtime by around 50\% compared to using two peers.
-From there, the benefits of including more peers only increase by 10-15\% for eight peers and 4-6\% for sixteen peers.
-
-\begin{figure}[ht]
-    % temporary
-    \foreach \gas in {1, 2}
+    \foreach \gas in {1}
         {
             \foreach \lu in {True, False}
                 {
@@ -46,9 +39,32 @@ From there, the benefits of including more peers only increase by 10-15\% for ei
                     \hfill
                 }
         }
-    \caption{Loss increase in percent for Hivemind runs with different number of peers and vCPUs relative to baseline runs. Higher is worse.}
+    \caption{GAS = 1, accuracy decrease in percent for Hivemind runs with 2, 4, 8, 16 peers and 8, 4, 2, 1 vCPUs respectively relative to baseline runs. Higher is worse.}
     \label{fig:loss-increase_scale-nop}
 \end{figure}
+
+\begin{figure}[ht]
+    % temporary
+    \foreach \gas in {2}
+        {
+            \foreach \lu in {True, False}
+                {
+                    \begin{subfigure}[b]{0.5\linewidth}
+                        \centering
+                        \caption{}
+                        \includegraphics[width=\textwidth]{./figures/06_barplot-loss_gas-\gas_lu-\lu_scale-nop.pdf}
+                    \end{subfigure}
+                    \hfill
+                }
+        }
+    \caption{GAS = 2, accuracy decrease in percent for Hivemind runs with 2, 4, 8, 16 peers and 8, 4, 2, 1 vCPUs respectively relative to baseline runs. Higher is worse.}
+\end{figure}
+
+As we might expect, \autoref{fig:runtime-decrease_scale-nop} shows that increasing the number of peers dramatically decreases the time taken to go through each experiment's budget of 320,000 samples.
+However, the runtime increase appears to be logarithmic.
+The highest jump in runtime performance is between using one single peer (Hivemind disabled) and using two peers (Hivemind enabled).
+Introducing four peers also cuts down runtime by around 50\% compared to using two peers.
+From there, the benefits of including more peers only increase by 10-15\% for eight peers and 4-6\% for sixteen peers.
 
 \autoref{fig:loss-increase_scale-nop} shows that GAS and LU settings seem to generally have a similar effect compared to Hivemind runs with 2 peers and 8vCPUs presented in \autoref{sec:focus-effect-bs-lr-tbs}.
 We notice a general decrease in performance as we increase the number of peers, especially for experiments that have reached a lower loss.
@@ -62,50 +78,29 @@ The increase in time taken for each operation is consistent with what we would e
 Summarizing the findings, we can say the following for our setup:
 \begin{itemize}
     \item Increasing the number of peers while maintaining the same computational power can reduce the total runtime by at least 30\%.
-    \item The runtime reduction is however not linear compared to the number of peers.
+    \item However runtime reduction is not linear compared to the number of peers.
           The effects of reducing the data load times by using faster storage are still an open question.
-    \item The loss increase seems to be a function of the number of peers in a training network when enabling local updates.
-    As we increase the number of peers, 
-    \item The negative effects of local updates presented in \autoref{sec:focus-local-updates} with respect to the number of peers seem to still hold.
+    \item With local updates enabled, increasing the number of peers seems to have a worse effect on training accuracy.
+    \item 
     \item We again notice a worse effect when increasing GAS when local updates are enabled, and a better effect when increasing GAS when local updates are disabled.
 \end{itemize}
 
 
 \begin{figure}[ht]
     \centering
-    \foreach \lu in {True, False}
+    \foreach \gas in {1, 2}
         {
-
-            \begin{subfigure}[b]{\textwidth}
+            \begin{subfigure}[t]{0.35\textwidth}
                 \centering
                 \caption{}
-                \includegraphics[width=\textwidth]{./figures/06_barplot-times_gas-1_lu-\lu_scale-nop.pdf}
-            \end{subfigure}%
-            \hfill
+                \includegraphics[width=\textwidth]{./figures/06_barplot-times_gas-\gas_scale-nop.pdf}
+            \end{subfigure}
         }
     \caption{
-        Average times of data load (small circles), forward pass (backward slash), backward pass (forward slash) and optimization step (stars) for Hivemind experiments with different number of peers in seconds.
+        Average times of data load (small circles), forward pass (backward slash), backward pass (forward slash) and optimization step (stars) for Hivemind runs with 2, 4, 8, 16 peers and 8, 4, 2, 1 vCPUs respectively in seconds.
         Runs are further aggregated across LR and the standard error amongst runs is shown with black bars (continues).
     }
     \label{fig:times-stacked_scale-nop}
-\end{figure}
-
-\begin{figure}[ht]\ContinuedFloat
-    \centering
-    \foreach \lu in {True, False}
-        {
-
-            \begin{subfigure}[b]{\textwidth}
-                \centering
-                \caption{}
-                \includegraphics[width=\textwidth]{./figures/06_barplot-times_gas-2_lu-\lu_scale-nop.pdf}
-            \end{subfigure}%
-            \hfill
-        }
-    \caption*{Figure~\ref{fig:times-stacked_2-peers-8vCPUs}:~
-        Average times of data load (small circles), forward pass (backward slash), backward pass (forward slash) and optimization step (stars) for Hivemind experiments with different number of peers in seconds.
-        Runs are further aggregated across LR and the standard error amongst runs is shown with black bars (continues).
-    }
 \end{figure}
 
 
@@ -113,12 +108,11 @@ Summarizing the findings, we can say the following for our setup:
     \centering
     \foreach \gas in {1, 2}
         {
-            \begin{subfigure}[b]{0.475\linewidth}
+            \begin{subfigure}[t]{0.4\linewidth}
                 \centering
                 \caption{}
                 \includegraphics[width=\textwidth]{./figures/06_net-recv-sys-bandwidth-mbs_gas-\gas_scale-nop.pdf}
-            \end{subfigure}%
-            \hfill
+            \end{subfigure}
         }
     \caption{Network received for Hivemind runs with 2, 4, 8, 16 peers and 8, 4, 2, 1 vCPUs respectively. Values $\geq 20$ MB/s are hidden and runs are aggregated across LR.}
     \label{fig:net-recv-sys-bandwidth-mbs_scale-nop}
@@ -128,12 +122,11 @@ Summarizing the findings, we can say the following for our setup:
     \centering
     \foreach \gas in {1, 2}
         {
-            \begin{subfigure}[b]{0.475\linewidth}
+            \begin{subfigure}[t]{0.4\linewidth}
                 \centering
                 \caption{}
                 \includegraphics[width=\textwidth]{./figures/06_net-sent-sys-bandwidth-mbs_gas-\gas_scale-nop.pdf}
-            \end{subfigure}%
-            \hfill
+            \end{subfigure}
         }
     \caption{Network sent for Hivemind runs with 2, 4, 8, 16 peers and 8, 4, 2, 1 vCPUs respectively. Values $\geq 20$ MB/s are hidden and runs are aggregated across LR.}
     \label{fig:net-sent-sys-bandwidth-mbs_scale-nop}
