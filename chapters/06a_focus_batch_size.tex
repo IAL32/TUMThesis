@@ -70,9 +70,11 @@ There are two important factors to take into consideration before making a such 
 Depending on the optimizer used for training a neural network model, the number of parameters can become huge.
 When performing an optimizer state averaging state, sending a high amount of parameters can lead to high communication overhead, and thus, reduced performance \cite{10.48550/arxiv.1705.08741, DBLP:journals/corr/abs-2003-11316, 10.5555/2999134.2999271, DBLP:journals/corr/abs-1811-03600}.
 However, this effect is almost non-existent for small neural networks such as ResNet18 \cite{DBLP:journals/corr/abs-2006-10103}.
-As we can see in \autoref{fig:net-recv-sys-bandwidth-mbs_2-peers-8vCPUs} and \autoref{fig:net-sent-sys-bandwidth-mbs_2-peers-8vCPUs}, bandwidth utilization is very low for a local network such as that of the setup of our experiment.
-Consequently, none of our experiments ever reached network bandwidth saturation for both receive and send operations.
+
+\autoref{fig:net-recv-sys-bandwidth-mbs_2-peers-8vCPUs} and \autoref{fig:net-sent-sys-bandwidth-mbs_2-peers-8vCPUs} show that the bandwidth utilization is very low for a local network such as that of the setup of our experiment.
+Consequently, none of our Hivemind experiments ever reached network bandwidth saturation for both receive and send operations.
 Furthermore, the Hivemind settings of our experiments do not allow overlapping training operations with averaging operations, which are all executed during the \texttt{opt.step()} call.
+Gradients are thus sent and received in a single step rather than in the background, which in our experiments did not lead to any discernible bottleneck.
 
 \begin{figure}[ht]
     \centering
@@ -102,7 +104,12 @@ Furthermore, the Hivemind settings of our experiments do not allow overlapping t
     \label{fig:net-sent-sys-bandwidth-mbs_2-peers-8vCPUs}
 \end{figure}
 
-\autoref{fig:times-stacked_2-peers-8vCPUs} shows the difference 
+\autoref{fig:times-stacked_2-peers-8vCPUs} shows the time taken for every operation on average in every training step.
+Naturally, operations that are unaffected by Hivemind such as data loading, forward and backward pass remain constant throughout all configurations.
+The optimizer step \texttt{opt.step()} on the other hand may fluctuate a lot depending on the state of the network and training.
+As we previously mentioned in \autoref{sec:not-baseline-case}, our setup has rather high limits on matchmaking time and averaging timeouts to quickly spot misbehaving runs.
+This can be seen as the runs with high standard errors for the optimizer step.
+
 \begin{figure}[ht]
     \centering
     \foreach \gas in {1, 2}
@@ -114,7 +121,7 @@ Furthermore, the Hivemind settings of our experiments do not allow overlapping t
             \end{subfigure}
         }
     \caption{
-        Average times of data load (small circles), forward pass (backward slash), backward pass (forward slash) and optimization step (stars) for Hivemind experiments with 2 peers and 8vCPUs in seconds.
+        Average times of data load (red), forward pass (green), backward pass (orange) and optimization step (blue) for Hivemind experiments with 2 peers and 8vCPUs in seconds.
         Runs are further aggregated across LR and the standard error amongst runs is shown with black bars (continues).
     }
     \label{fig:times-stacked_2-peers-8vCPUs}

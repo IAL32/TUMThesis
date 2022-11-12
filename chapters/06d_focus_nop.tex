@@ -26,17 +26,16 @@ It might be difficult to isolate the effects of introducing more nodes from scal
 Thus, we decided to fix the target batch size to 1250 for this set of experiments and alter TBS, BS, LR, GAS and LU.
 
 \begin{figure}[ht]
-    % temporary
+    \centering
     \foreach \gas in {1}
         {
             \foreach \lu in {True, False}
                 {
-                    \begin{subfigure}[b]{0.5\linewidth}
+                    \begin{subfigure}[t]{0.45\linewidth}
                         \centering
                         \caption{}
                         \includegraphics[width=\textwidth]{./figures/06_barplot-loss_gas-\gas_lu-\lu_scale-nop.pdf}
                     \end{subfigure}
-                    \hfill
                 }
         }
     \caption{GAS = 1, accuracy decrease in percent for Hivemind runs with 2, 4, 8, 16 peers and 8, 4, 2, 1 vCPUs respectively relative to baseline runs. Higher is worse.}
@@ -44,17 +43,16 @@ Thus, we decided to fix the target batch size to 1250 for this set of experiment
 \end{figure}
 
 \begin{figure}[ht]
-    % temporary
+    \centering
     \foreach \gas in {2}
         {
             \foreach \lu in {True, False}
                 {
-                    \begin{subfigure}[b]{0.5\linewidth}
+                    \begin{subfigure}[t]{0.45\linewidth}
                         \centering
                         \caption{}
                         \includegraphics[width=\textwidth]{./figures/06_barplot-loss_gas-\gas_lu-\lu_scale-nop.pdf}
                     \end{subfigure}
-                    \hfill
                 }
         }
     \caption{GAS = 2, accuracy decrease in percent for Hivemind runs with 2, 4, 8, 16 peers and 8, 4, 2, 1 vCPUs respectively relative to baseline runs. Higher is worse.}
@@ -80,15 +78,26 @@ This is connected with the reduction in runtime increase benefits shown before.
 As we half the computational power per peer, slower operations such as data loading, forward and backward pass stack up, eventually leading to slower runtimes.
 It remains an open question however to see if increasing the number of peers and increasing the available computational power will solve these issues and by how much.
 
+The network bandwidth utilization for different peer configurations is shown in \autoref{fig:net-recv-sys-bandwidth-mbs_scale-nop} and \autoref{fig:net-sent-sys-bandwidth-mbs_scale-nop}, and yield interesting results.
+As we increase the number of peers in a training session, peers communicate more often, which can also be seen as these "bulbs" in the violin plots.
+This is unsurprising, for two reasons:
+first, the time to reach the fixed TBS of 1250 gets shorter as we add more peers, thus, the frequency at which peers communicate increases with the number of peers;
+second, with more peers to average with, there is more data to exchange in terms of pings, synchronization messages and such.
+We can see that with sixteen peers, the sent bandwidth utilization is almost exclusively around 5MB/s.
+Nevertheless, even with sixteen peers, we did not see any significant CPU bottleneck caused by high network communication.
+
 Summarizing the findings, we can say the following for our setup:
 \begin{itemize}
     \item Increasing the number of peers while maintaining the same computational power can reduce the total runtime by at least 30\%.
     \item However runtime reduction is not linear compared to the number of peers.
           The effects of reducing the data load times by using faster storage are still an open question.
     \item With local updates enabled, increasing the number of peers seems to have a worse effect on training accuracy.
+          The effects of other values of TBS for a different number of peers is still an open question.
+    \item Introducing more peers leads to more bandwidth usage as each peer exchanges more data with other averaging partners.
+          This effect can become much larger for larger models and a much larger number of nodes.
 \end{itemize}%
 
-\begin{figure}[ht]
+\begin{figure}[H]
     \centering
     \foreach \gas in {1, 2}
         {
@@ -99,18 +108,18 @@ Summarizing the findings, we can say the following for our setup:
             \end{subfigure}%
         }
     \caption{
-        Average times of data load (small circles), forward pass (backward slash), backward pass (forward slash) and optimization step (stars) for Hivemind runs with 2, 4, 8, 16 peers and 8, 4, 2, 1 vCPUs respectively in seconds.
-        Runs are further aggregated across LR and the standard error amongst runs is shown with black bars (continues).
+        Average times of data load (red), forward pass (green), backward pass (orange) and optimization step (blue) for Hivemind runs with 2, 4, 8, 16 peers and 8, 4, 2, 1 vCPUs respectively in seconds.
+        Runs are further aggregated across LR.
     }
     \label{fig:times-stacked_scale-nop}
 \end{figure}%
 
 
-\begin{figure}[ht]
+\begin{figure}[H]
     \centering
     \foreach \gas in {1, 2}
         {
-            \begin{subfigure}[t]{0.4\linewidth}
+            \begin{subfigure}[t]{0.30\linewidth}
                 \centering
                 \caption{}
                 \includegraphics[width=\textwidth]{./figures/06_net-recv-sys-bandwidth-mbs_gas-\gas_scale-nop.pdf}
@@ -119,12 +128,11 @@ Summarizing the findings, we can say the following for our setup:
     \caption{Network received for Hivemind runs with 2, 4, 8, 16 peers and 8, 4, 2, 1 vCPUs respectively. Values $\geq 20$ MB/s are hidden and runs are aggregated across LR.}
     \label{fig:net-recv-sys-bandwidth-mbs_scale-nop}
 \end{figure}%
-
-\begin{figure}[ht]
+\begin{figure}[H]
     \centering
     \foreach \gas in {1, 2}
         {
-            \begin{subfigure}[t]{0.4\linewidth}
+            \begin{subfigure}[t]{0.30\linewidth}
                 \centering
                 \caption{}
                 \includegraphics[width=\textwidth]{./figures/06_net-sent-sys-bandwidth-mbs_gas-\gas_scale-nop.pdf}
