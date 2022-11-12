@@ -86,6 +86,12 @@ second, with more peers to average with, there is more data to exchange in terms
 We can see that with sixteen peers, the sent bandwidth utilization is almost exclusively around 5MB/s.
 Nevertheless, even with sixteen peers, we did not see any significant CPU bottleneck caused by high network communication.
 
+Finally, we make different observations for GAS and LU values as we presented in \autoref{sec:focus-local-updates} and \autoref{sec:focus-gradient-acc}.
+Enabling LU for a higher number of peers seems to be very penalizing, especially with NoP=16.
+Disabling LU instead yields more consistent accuracies in every experiment but seems to perform best for large values of LR.
+Increasing GAS appears to worsen the situation when paired with LU=True, except for very low values of LR.
+On the other hand, increasing GAS to 2 while disabling local updates seems to be a bit better, but not as consistently as decreasing TBS in \autoref{sec:focus-effect-bs-lr-tbs}.
+
 Summarizing the findings, we can say the following for our setup:
 \begin{itemize}
     \item Increasing the number of peers while maintaining the same computational power can reduce the total runtime by at least 30\%.

@@ -28,5 +28,5 @@ In short, this is what we learned from the effects of local updates:
     \item Disabling local updates is more unforgiving in terms of the accuracy decrease, with additional penalties as the target batch size increases and thus the waiting time between averaging rounds.
           As long as peers can communicate as often as possible however this does not seem to be an issue.
     \item Increasing GAS with local updates enabled may cause worse performance in terms of accuracy, taking into account baseline runs with good performance.
-    \item This is the opposite when disabling local updates, where increasing GAS leads to overall better accuracy.
+    \item On the contrary, with disabled local updates, GAS=2 leads to overall better accuracy compared to GAS=1, but it is still bad with respect to baseline runs.
 \end{itemize}
