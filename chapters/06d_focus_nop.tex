@@ -72,11 +72,15 @@ Further experimentation may also show that increasing the TBS, and thus reducing
 The graph also shows us a decrease in performance as we increase the number of peers, especially for experiments that have reached a higher accuracy.
 In general, we noticed that compared to baseline experiments with bad performance, the accuracy does not change too much when using Hivemind.
 
-\autoref{fig:times-stacked_scale-nop} shows the average time taken for each step in every different combination for the experiments changing NoP.
-The increase in time taken for each operation is consistent with what we would expect: halving the number of computational power results in double the time taken per operation.
-This is connected with the reduction in runtime increase benefits shown before.
-As we half the computational power per peer, slower operations such as data loading, forward and backward pass stack up, eventually leading to slower runtimes.
-It remains an open question however to see if increasing the number of peers and increasing the available computational power will solve these issues and by how much.
+\autoref{fig:times-stacked_scale-nop} shows the cumulative time in minutes taken by the optimization step for the Hivemind experiments changing NoP.
+We can notice little changes when increasing from GAS=1 to GAS=2 when local updates are disabled, with a slight increase in processing time as we increase the NoP.
+This is to be expected, as the more peers are introduced, the more often peers can perform averaging.
+However, this effect is dampened by the simultaneous reduction in the processing speed of every node.
+
+When local updates are enabled, the difference between GAS=1 and GAS=2 are instead much more noticeable, with GAS=2 drastically reducing the time spent on the optimization step.
+This may be because peers call less frequently \texttt{opt.step()}, they perform fewer averaging rounds overall.
+As the number of peers increases, we also see a reduction in time spent.
+This is also due to the reduced number of maximum steps called, which becomes half again if we increase GAS.
 
 The network bandwidth utilization for different peer configurations is shown in \autoref{fig:net-recv-sys-bandwidth-mbs_scale-nop} and \autoref{fig:net-sent-sys-bandwidth-mbs_scale-nop}, and yield interesting results.
 As we increase the number of peers in a training session, peers communicate more often, which can also be seen as these "bulbs" in the violin plots.
@@ -101,6 +105,7 @@ Summarizing the findings, we can say the following for our setup:
           The effects of other values of TBS for a different number of peers is still an open question.
     \item Introducing more peers leads to more bandwidth usage as each peer exchanges more data with other averaging partners.
           This effect can become much larger for larger models and a much larger number of nodes.
+    \item At the same time, increasing the number of peers reduces the amount of time spent averaging given a fixed sample budget.
 \end{itemize}%
 
 \begin{figure}[H]
@@ -114,7 +119,7 @@ Summarizing the findings, we can say the following for our setup:
             \end{subfigure}%
         }
     \caption{
-        Average times of data load (red), forward pass (green), backward pass (orange) and optimization step (blue) for Hivemind runs with 2, 4, 8, 16 peers and 8, 4, 2, 1 vCPUs respectively in seconds.
+        Cumulative time taken by the \texttt{opt.step()} for Hivemind runs with 2, 4, 8, 16 peers and 8, 4, 2, 1 vCPUs respectively in minutes.
         Runs are further aggregated across LR.
     }
     \label{fig:times-stacked_scale-nop}

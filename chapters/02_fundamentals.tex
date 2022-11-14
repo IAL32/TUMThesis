@@ -280,21 +280,21 @@ In the case of Hivemind, the operation of choice is averaging, which can be perf
     \centering
     \begin{subfigure}[b]{0.475 \textwidth}
         \centering
-        \caption{State averaging in Hivemind.}
+        \caption{}
         \label{fig:state-averaging}
         \includegraphics[width=\textwidth]{./figures/02_optimizer_averaging.pdf}
     \end{subfigure}%
     \hfill
     \begin{subfigure}[b]{0.475 \textwidth}
         \centering
-        \caption{Gradient averaging in Hivemind.}
+        \caption{}
         \label{fig:gradient-averaging}
         \includegraphics[width=\textwidth]{./figures/02_gradient_averaging.pdf}
     \end{subfigure}
-    \caption{}
+    \caption{State averaging (left) and gradient averaging (right) in Hivemind.}
 \end{figure}
 
-\subsubsection{Local Updates}
+\subsubsection{Local Updates}\label{ssec:local-updates}
 
 Training neural networks with larger batches has been proven to be beneficial in some cases \cite{Krizhevsky2014owt, goyal2017accurate, you2017scaling}.
 Thus, practitioners may want to be able to accumulate gradients either locally, in a distributed manner, or a combination of both.

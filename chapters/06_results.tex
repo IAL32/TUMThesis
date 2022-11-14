@@ -41,7 +41,7 @@ On average, this is roughly 0.02 MB/s on every run, a value that can be mostly a
 
 In future sections, we will always account for these effects when performing comparisons with baseline runs.
 
-\begin{figure}[h]
+\begin{figure}[ht]
     \centering
     \begin{subfigure}[t]{0.475 \textwidth}
         \centering
@@ -63,24 +63,66 @@ In future sections, we will always account for these effects when performing com
 \autoref{fig:baseline-times-stacked} shows the average times for data load, forward pass, backward pass and optimization step across batch sizes in baseline runs for both GAS=1 and GAS=2.
 As we might expect, the time it takes for a single step to complete is linearly dependent on the batch size.
 The learning rate (LR) does not affect the time it takes for each step to complete, so we aggregated the runs for each batch size.
-By contrast, the number of gradient accumulation steps (GAS) seems to shave off some time for every batch size, although the total runtimes in \autoref{fig:baseline-runtimes} do not seem to reflect this improvement.
-Throughout this chapter, we will keep showing GAS runs separately, as it still might affect some other aspects of training.
+By contrast, the number of gradient accumulation steps (GAS) seems to shave off some time for every batch size.
+However, the total runtimes in \autoref{fig:baseline-runtimes} do not seem to reflect this improvement.
+Because of this, throughout this chapter, we will keep showing GAS runs separately, as it still might affect some other aspects of training.
 
-In the same graph, we can also notice the big impact that data loading has on every step.
+We further note that each step's average time remains relatively unchanged throughout every experiment, given the same computational power, except for the data load and optimizer steps
+\footnote{We will not show anymore the times of every step besides the optimizer step, as they remain generally constant.}.
+The irregularity of the storage medium that we used for the experiment, CEPH, is to blame for the slight irregularities in the data load step.
+Regarding the optimizer step, its irregularities are due to two main factors: Hivemind settings and overcommitted nodes.
+
+We will explore later in this chapter the effects of Hivemind settings on the optimizer step.
+Overcommitted nodes are a consequence of the cloud environment where the machines that perform our experiments are set up.
+Because we have limited resources in our cluster, sometimes other researchers may need to overcommit the same node vCPUs to perform their experiments.
+This causes several issues when training in a distributed setting with Hivemind, such as nodes not responding for long periods of time, sometimes even minutes.
+In such cases, two things can happen:
+
+\begin{itemize}
+    \item if the non-responding node or nodes were not participating in an averaging round, other participating nodes will wait for 10 seconds, and then start an averaging round without other nodes;
+    \item if the node was actively participating in an averaging round, nodes will wait for the node to come back for 300 seconds or five minutes.
+\end{itemize}
+
+Future efforts to replicate the results presented in this thesis may wish to pin their resources to prevent or reduce these issues from happening.
+
+In \autoref{fig:baseline-times-stacked} we can also notice the big impact that data loading has on every step.
 Almost 1/2 of the total time for each step consists in waiting for the data to load.
 As we increase the number of cores per peer, CPU utilization decreases, as the CPU is idle during I/O wait times and normal operations such as forward and backward pass take less time.
 This is a bottleneck that can easily be tackled through several means, such as having a faster storage backend or if that is not available, faster data loader frameworks and algorithms \cite{isenko2022bottleneck, leclerc2022ffcv}.
-Future experiments can make use of local, faster storage backed by SSD to achieve faster data load speeds, helping us rule out the effects of data loading on training with Hivemind.
+Future work may make use of local, faster storage backed by SSD to achieve faster data load speeds, helping us rule out the effects of data loading on training with Hivemind.
 
-\begin{figure}[h]
-    \centering
-    \includegraphics[width=0.65\textwidth]{./figures/06_barplot-times_baseline-16vCPUs-GAS-1.pdf}
-    \caption{
-        Average times of step data load (red), forward pass (green), backward pass (orange) and optimization step (blue) baseline experiments in seconds.
-        Runs are further aggregated across LR and the standard error amongst runs is shown with black bars.
-    }
-    \label{fig:baseline-times-stacked}
-\end{figure}
+\begin{minipage}{\linewidth}
+    \begin{minipage}{0.45\linewidth}
+        \begin{figure}[H]
+            \centering
+            \includegraphics[width=\textwidth]{./figures/06_barplot-times_baseline-16vCPUs-GAS-1.pdf}
+            \caption{
+                Average times of step data load (red), forward pass (green), backward pass (orange) and optimization step (blue) baseline experiments in seconds.
+                Runs are further aggregated across LR and the standard error amongst runs is shown with black bars.
+            }
+            \label{fig:baseline-times-stacked}
+        \end{figure}
+    \end{minipage}
+    \hspace{0.05\linewidth}
+    \begin{minipage}{0.45\linewidth}
+        \begin{figure}[H]
+            \centering
+            \includegraphics[width=\textwidth]{./figures/06_barplot-times-opt_baseline-16vCPUs-GAS-1.pdf}
+            \caption{
+                Cumulative time taken by the \texttt{opt.step()} for every batch size, in minutes.
+                Runs are further aggregated across LR and the standard error amongst runs is shown with black bars.
+            }
+            \label{fig:baseline-times-opt}
+        \end{figure}
+    \end{minipage}
+\end{minipage}
+
+Finally, we zoom in on the effect of GAS for baseline runs on the optimizer step times in \autoref{fig:baseline-times-opt}.
+The graph shows the total amount of time spent for each run to perform \texttt{opt.step()}, grouped by LR.
+As we might expect from \autoref{alg:grad-acc-training}, doubling GAS led to half the time spent on the optimizer step, as it is called exactly half of the time.
+Furthermore, as we increase the batch size, we also reduce the amount of time spent performing the optimization step.
+Because backpropagation scales with the number of outputs, performing the optimization step does not scale up with the increased input size.
+In the next sections, we will further analyze the effects of using GAS together with other Hivemind settings.
 
 \input{chapters/06a_focus_batch_size.tex}
 

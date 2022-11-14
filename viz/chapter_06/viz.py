@@ -88,12 +88,16 @@ def scan_history(run: wandb.apis.public.Run):
         # for old runs incorporating both...
         if "train/model_backward_only_s" in row:
             missing_time_s -= row["train/model_backward_only_s"] - row["train/model_opt_s"]
+            # > 5 minutes is considered an outlier, fallback to 5m
+            if row["train/model_opt_s"] / 60 > 1:
+                row["train/model_opt_s"] = 60
         else:
             missing_time_s -= row["train/model_backward_s"]
         sum_total_time_s += total_time_s
         sum_missing_time_s += missing_time_s
         row["_timestamp"] = pd.to_datetime(row['_timestamp'], unit='s')
         accuracy_max = max(accuracy_max, row["train/accuracy"])
+
 
         row_history.append({
             **row,

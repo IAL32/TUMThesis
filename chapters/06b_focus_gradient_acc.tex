@@ -2,14 +2,14 @@
 
 Gradient accumulation allows the simulation of bigger batches within a single node by accumulating gradients every time the backpropagation step is performed.
 After GAS steps, the optimizer step is performed and the gradients are finally applied to the trained model.
-In theory, reducing the frequency of executing the optimizer step should also reduce the total time spent applying the gradients to the mode.
-In practice, for small models like ResNet18, this doesn't make a discernible difference as shown in \autoref{fig:times-stacked_2-peers-8vCPUs}, where the optimizer step takes 0.05 seconds on average.
+We have previously shown that as we reduce the number of calls to the optimizer, we also see a reduction in overall time spent in this step.
+Increasing GAS to two should also reduce this, as we perform one \texttt{opt.step()} call every two steps.
+This is confirmed by looking at \autoref{fig:times-stacked_2-peers-8vCPUs}, where we see that compared to GAS=1, GAS=2 runs spend much less time on average for optimizer operations.
 
-For accuracy, the scenario is quite different.
-First of all, we notice that for baseline runs increasing GAS did not make any discernible difference.
+Regarding accuracy, we notice that for baseline runs increasing GAS can help increase accuracy by some points relative to the baseline runs.
 In \autoref{fig:loss-increase_gas-1_2-peers-8vCPUs} and \autoref{fig:loss-increase_gas-2_2-peers-8vCPUs} we can see the accuracy decrease with respect to the baseline runs in four different configurations:
 \begin{itemize}
-    \item GAS=1, LU=True; 
+    \item GAS=1, LU=True;
     \item GAS=1, LU=False;
     \item GAS=2, LU=True;
     \item GAS=2, LU=False;
@@ -17,6 +17,7 @@ In \autoref{fig:loss-increase_gas-1_2-peers-8vCPUs} and \autoref{fig:loss-increa
 
 With both LU=True and LU=False, we can notice a better accuracy with GAS=2 by 5-10\% compared to GAS=1 for experiments with high LR.
 Thus, as LR increases, the gap between GAS=1 and GAS=2 closes, with the gap getting even closer for smaller TBS values.
+However, this is not consistent with all runs, and we would suggest re-running some experiments to confirm this point.
 It remains an open question whether increasing GAS to higher values than 2 will lead to experiments with LU=False eventually becoming better than the baseline runs.
 
 Finally, we notice that the impact on network utilization using our experiment combination of configurations is minimal.
@@ -24,6 +25,7 @@ For scenarios with more traffic, high values of GAS may help reduce the number o
 
 Evaluating the effects of using gradient accumulation and averaging, we can say the following when training ResNet18 on Imagenet with Hivemind:
 \begin{itemize}
-    \item the smaller the TBS, the less the difference between GAS=1 and GAS=2 matters. It remains an open question whether this statement holds for higher values of GAS.
+    \item the smaller the TBS, the less the difference between GAS=1 and GAS=2 matters.
+          It remains an open question whether this statement holds for higher values of GAS.
     \item for high values of LR, GAS does not seem to affect training as much as for low values of LR.
 \end{itemize}

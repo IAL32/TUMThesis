@@ -3,12 +3,12 @@ By default, the Hivemind Optimizer wraps around a Pytorch optimizer, taking cont
 When local updates (LU) are enabled, gradients are applied directly to the model at each call of the Hivemind Optimizer.
 When LU are disabled, the gradients are only applied to a model after the gradient averager and state averager have finished.
 
-Taking a look at \autoref{fig:runtime-decrease_2-peers-8vCPUs}, we can notice that the runtime difference between enabling or disabling local updates is minimal and not relevant.
+Taking a look at \autoref{fig:runtime-decrease_2-peers-8vCPUs}, we can notice that the runtime difference between enabling or disabling local updates is minimal and perhaps not relevant.
 As we can notice by the very low bandwidth usage in both \autoref{fig:net-recv-sys-bandwidth-mbs_2-peers-8vCPUs} and \autoref{fig:net-sent-sys-bandwidth-mbs_2-peers-8vCPUs}, LU also has little effect on networking for our setup.
 This may be due to several factors, such as the relatively small size of the model and the optimizer
 
 In \autoref{fig:loss-increase_gas-1_2-peers-8vCPUs} and \autoref{fig:loss-increase_gas-2_2-peers-8vCPUs} the difference between the two modes in terms of accuracy decrease compared to the baseline is quite noticeable.
-Disabling local updates consistently leads to worse performance compared to the baseline experiments with the highest accuracay.
+Disabling local updates consistently leads to worse performance compared to the baseline experiments with the highest accuracy.
 However, for low accuracy increase, the results are not entirely relevant.
 The final accuracy is still too low to be considered a good training result compared to the baseline experiments.
 

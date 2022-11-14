@@ -45,8 +45,8 @@ There are two important factors to take into consideration before making a such 
           Parallelizing data loading indeed speeds up the overall runtime for each run.
           With further experimentation that is outside the scope of this thesis, it might be possible to reduce the data loading step with local parallelization techniques and faster storage.
           Reducing the data loading step might help rule out the possibility that we only see runtime improvements because of the effects of loading more data in parallel.
-    \item The results in \autoref{fig:loss-increase_gas-1_2-peers-8vCPUs} and \autoref{fig:loss-increase_gas-2_2-peers-8vCPUs} shows the hidden impact on loss of using Hivemind.
-          Nearly all experiments are not able to reach the minimum loss set by the respective baseline runs.
+    \item The results in \autoref{fig:loss-increase_gas-1_2-peers-8vCPUs} and \autoref{fig:loss-increase_gas-2_2-peers-8vCPUs} shows the hidden impact on accuracy of using Hivemind.
+          Nearly all experiments are not able to reach the maximum accuracy set by the respective baseline runs.
           Some experiments \cite{you2017scaling} have shown that large batch training can lead to divergence, and it is possible to reach the same model accuracy just by training longer.
           Others \cite{DBLP:journals/corr/KeskarMNST16} argue that longer training with larger batch sizes might lead to overall worse generalization capabilities for the model.
           Proving the effects on accuracy and model generalization is beyond the scope of this thesis.
@@ -104,11 +104,14 @@ Gradients are thus sent and received in a single step rather than in the backgro
     \label{fig:net-sent-sys-bandwidth-mbs_2-peers-8vCPUs}
 \end{figure}
 
-\autoref{fig:times-stacked_2-peers-8vCPUs} shows the time taken for every operation on average in every training step.
-Naturally, operations that are unaffected by Hivemind such as data loading, forward and backward pass remain constant throughout all configurations.
-The optimizer step \texttt{opt.step()} on the other hand may fluctuate a lot depending on the state of the network and training.
-As we previously mentioned in \autoref{sec:not-baseline-case}, our setup has rather high limits on matchmaking time and averaging timeouts to quickly spot misbehaving runs.
-This can be seen as the runs with high standard errors for the optimizer step.
+Taking a look back at \autoref{fig:use-local-updates_false} and \autoref{fig:use-local-updates_true}, we expect that as we increase TBS, we should see the time spent on \texttt{opt.step()} increase.
+This is because nodes perform more steps overall, and thus spend more time looking for peers to perform averaging with.
+Furthermore, we should see that as we increase the batch size, we also spend less time performing the optimization step, as we do fewer calls to \texttt{opt.step()} in total.
+\autoref{fig:times-stacked_2-peers-8vCPUs} shows the cumulative time taken for the optimization step in every run, aggregated per LR.
+Generally, we see that our expectations are confirmed across all runs, with some exceptions
+\footnote{
+    The imperfect environment that our experiments are performed on allows node overcommitting, causing some runs to show increased waiting times.
+}.
 
 \begin{figure}[ht]
     \centering
@@ -121,7 +124,7 @@ This can be seen as the runs with high standard errors for the optimizer step.
             \end{subfigure}
         }
     \caption{
-        Average times of data load (red), forward pass (green), backward pass (orange) and optimization step (blue) for Hivemind experiments with 2 peers and 8vCPUs in seconds.
+        Cumulative time taken by the \texttt{opt.step()} for Hivemind experiments with 2 peers and 8vCPUs in minutes.
         Runs are further aggregated across LR and the standard error amongst runs is shown with black bars (continues).
     }
     \label{fig:times-stacked_2-peers-8vCPUs}
@@ -130,8 +133,9 @@ This can be seen as the runs with high standard errors for the optimizer step.
 Considerations of training with Hivemind for the TBS, BS and LR hyperparameters:
 
 \begin{itemize}
-    \item With the same amount of computational power overall, training with Hivemind might need more time to reach the loss compared to the baseline runs.
+    \item With the same amount of computational power overall, training with Hivemind might need more time to reach a target accuracy compared to the baseline runs.
     \item Having access to less powerful hardware still allows training peers to be helpful, at the cost of training for longer.
-    \item Increasing the frequency of averaging does not make up for a bad selection of optimization hyperparameters such as the batch size and learning rate.
-    \item However being able to perform averaging steps more frequently can help to reduce the loss gap with the baseline runs.
+    \item Averaging more frequently, thus increasing TBS can help to reduce the accuracy gap with the baseline runs.
+    \item Increasing TBS does not make up for a bad selection of optimization hyperparameters such as the batch size and learning rate.
+    \item Trying to get closer accuracy by increasing TBS may lead to fewer benefits in terms of total runtime reduction, as we spend increasingly more time waiting for averaging peers and averaging operations.
 \end{itemize}
