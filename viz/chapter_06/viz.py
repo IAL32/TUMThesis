@@ -59,7 +59,7 @@ def scan_history(run: wandb.apis.public.Run):
     retry = 0
     while retry < MAX_RETRIES:
         try:
-            history = run.history(keys=[
+            keys = [
                 "_timestamp",
                 "train/accuracy",
                 "bandwidth/net_recv_sys_bandwidth_mbs",
@@ -67,9 +67,14 @@ def scan_history(run: wandb.apis.public.Run):
                 "train/samples_ps",
                 "train/data_load_s",
                 "train/model_forward_s",
-                ("train/model_backward_only_s" if "train/model_backward_only_s" in run.summary._json_dict else "train/model_backward_s"),
-                *(["train/model_opt_s"] if "train/model_backward_only_s" in run.summary._json_dict else []),
-            ], samples=run.summary.get("_step"), pandas=False)
+            ]
+            if "train/model_backward_only_s" in run.summary._json_dict:
+                keys = [*keys, "train/model_backward_only_s", "train/model_opt_s"]
+            else:
+                keys = [*keys, "train/model_backward_s"]
+            if "optimizer/samples_ps" in run.summary._json_dict:
+                keys = [*keys, "optimizer/samples_ps"]
+            history = run.history(keys=keys, samples=run.summary.get("_step"), pandas=False)
             break
         except Exception as e:
             print(f"Run {run.id} failed with: ", e.args[0])
@@ -88,9 +93,6 @@ def scan_history(run: wandb.apis.public.Run):
         # for old runs incorporating both...
         if "train/model_backward_only_s" in row:
             missing_time_s -= row["train/model_backward_only_s"] - row["train/model_opt_s"]
-            # > 5 minutes is considered an outlier, fallback to 5m
-            if row["train/model_opt_s"] / 60 > 1:
-                row["train/model_opt_s"] = 60
         else:
             missing_time_s -= row["train/model_backward_s"]
         sum_total_time_s += total_time_s

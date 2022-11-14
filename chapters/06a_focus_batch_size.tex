@@ -16,7 +16,11 @@ In Hivemind, this has the consequence of reaching the TBS in fewer steps, but no
                 \includegraphics[width=\textwidth]{./figures/06_barplot-runtime_gas-\gas_2-peers-8vCPUs.pdf}
             \end{subfigure}
         }
-    \caption{Runtime decrease in percent for Hivemind runs with 2 peers and 8vCPUs relative to the baseline runs. Higher is better. Runs are aggregated across LR and the standard error amongst runs is shown with black bars.}
+    \caption{
+        Runtimes (bars) in minutes for Hivemind runs with 2 peers and 8vCPUs.
+        Runs are aggregated across LR and the standard error amongst runs is shown with black bars.
+        The black dashed line indicates the throughput in samples per second.
+    }
     \label{fig:runtime-decrease_2-peers-8vCPUs}
 \end{figure}
 
@@ -27,14 +31,13 @@ There are two important factors to take into consideration before making a such 
 
 \begin{figure}[ht]
     \centering
-    \foreach \lu in {True, False}
+    \foreach \lu in {False, True}
         {
-            \begin{subfigure}[b]{0.475\textwidth}
+            \begin{subfigure}[t]{0.4\textwidth}
                 \centering
                 \caption{}
                 \includegraphics[width=\textwidth]{./figures/06_barplot-loss_gas-1_lu-\lu_2-peers-8vCPUs.pdf}
             \end{subfigure}
-            \hfill
         }
     \caption{GAS=1, accuracy decrease in percent for Hivemind runs with 2 peers and 8vCPUs relative to the baseline runs. Higher is worse.}
     \label{fig:loss-increase_gas-1_2-peers-8vCPUs}
@@ -54,14 +57,13 @@ There are two important factors to take into consideration before making a such 
 
 \begin{figure}[htb]
     \centering
-    \foreach \lu in {True, False}
+    \foreach \lu in {False, True}
         {
-            \begin{subfigure}[b]{0.475\textwidth}
+            \begin{subfigure}[t]{0.45\textwidth}
                 \centering
                 \caption{}
                 \includegraphics[width=\textwidth]{./figures/06_barplot-loss_gas-2_lu-\lu_2-peers-8vCPUs.pdf}
-            \end{subfigure}%
-            \hfill
+            \end{subfigure}
         }
     \caption{GAS=2, accuracy decrease in percent for Hivemind runs with 2 peers and 8vCPUs relative to the baseline runs. Higher is worse.}
     \label{fig:loss-increase_gas-2_2-peers-8vCPUs}
@@ -80,7 +82,7 @@ Gradients are thus sent and received in a single step rather than in the backgro
     \centering
     \foreach \gas in {1, 2}
         {
-            \begin{subfigure}[t]{0.4\linewidth}
+            \begin{subfigure}[t]{0.45\linewidth}
                 \centering
                 \caption{}
                 \includegraphics[width=\textwidth]{./figures/06_net-recv-sys-bandwidth-mbs_gas-\gas_2-peers-8vCPUs.pdf}
@@ -110,14 +112,14 @@ Furthermore, we should see that as we increase the batch size, we also spend les
 \autoref{fig:times-stacked_2-peers-8vCPUs} shows the cumulative time taken for the optimization step in every run, aggregated per LR.
 Generally, we see that our expectations are confirmed across all runs, with some exceptions
 \footnote{
-    The imperfect environment that our experiments are performed on allows node overcommitting, causing some runs to show increased waiting times.
+    The imperfect setup that our experiments are performed on allows node overcommitting, causing some runs to show increased waiting times.
 }.
 
 \begin{figure}[ht]
     \centering
     \foreach \gas in {1, 2}
         {
-            \begin{subfigure}[t]{0.35\textwidth}
+            \begin{subfigure}[t]{0.45\textwidth}
                 \centering
                 \caption{}
                 \includegraphics[width=\textwidth]{./figures/06_barplot-times_gas-\gas_2-peers-8vCPUs.pdf}
@@ -125,7 +127,7 @@ Generally, we see that our expectations are confirmed across all runs, with some
         }
     \caption{
         Cumulative time taken by the \texttt{opt.step()} for Hivemind experiments with 2 peers and 8vCPUs in minutes.
-        Runs are further aggregated across LR and the standard error amongst runs is shown with black bars (continues).
+        Runs are further aggregated across LR and the standard error amongst runs is shown with black bars.
     }
     \label{fig:times-stacked_2-peers-8vCPUs}
 \end{figure}

@@ -4,10 +4,11 @@ The analysis focuses on the effects of common training hyperparameters such as b
 We show that it can successfully be used to collaboratively train smaller deep learning networks such as ResNet18 using the Imagenet dataset, with a few caveats.
 
 Our investigation on training hyperparameters and Hivemind settings reveals three major points for the setup that we selected:
-first, we found that training with the Hivemind local updates setting turned on is beneficial for our particular setup, at virtually no cost;
-second, using gradient accumulation can lead to worse loss when enabling local updates and better loss when disabling it;
-third, network bottlenecks for such a low number of parameters are not an issue in any scenario.
+first, we found that training with the Hivemind local updates setting turned on is beneficial for our particular setup, at virtually no cost to final accuracy;
+second, increasing the number of gradient accumulation steps considerably reduces the number of times peers communicate, negatively impacting the final accuracy;
+third, network bottlenecks for a low number of parameters such as ResNet18 are not an issue in any scenario explored here.
 
-Finally, we show the effects of training Hivemind on more than two devices while maintaining the same sample and computational power budget.
-There is a sweet spot in terms of runtime benefits and loss when adding more nodes.
-After adding enough peers to a training network, the reduction of runtime does not increase enough to justify loss penalties.
+Finally, we show the effects of training Hivemind on more than two devices while maintaining the same sample and computational power budget, as well as Hivemind's target batch size.
+There seems to exist a sweet spot in terms of runtime benefits and loss when adding more nodes while keeping the same amount of computational power.
+However, after adding enough peers to a training network, the reduction of runtime does not increase enough to justify loss penalties.
+Furthermore, the matchmaking time should also be tuned according to the number of participating peers as well as the time each of them takes to complete a training step.

@@ -17,7 +17,11 @@ As we might have expected, most runs take more or less the same amount of time, 
 \begin{figure}[ht]
     \centering
     \includegraphics[width=0.6\textwidth]{./figures/06_barplot-runtime_baseline-16vCPUs-GAS-1.pdf}
-    \caption{Average runtimes of baseline experiments in minutes. Runs are aggregated across LR, with the standard deviation amongst reruns as the black bar.}
+    \caption{
+        Average runtimes (bars) of baseline experiments in minutes.
+        Runs are aggregated across LR, with the standard deviation amongst reruns as the black bars.
+        The black dashed line indicates the throughput in samples per second.
+    }
     \label{fig:baseline-runtimes}
 \end{figure}
 
@@ -47,14 +51,14 @@ In future sections, we will always account for these effects when performing com
         \centering
         \caption{Network bandwidth sent in MB/s for baseline runs. Values above 0.07 are hidden. Runs are aggregated across LR.}
         \label{fig:net-sent_baseline}
-        \includegraphics[width=0.6\textwidth]{./figures/06_net-recv_baseline-16vCPUs-GAS-1.pdf}
+        \includegraphics[width=0.5\textwidth]{./figures/06_net-recv_baseline-16vCPUs-GAS-1.pdf}
     \end{subfigure}
     \centering
     \begin{subfigure}[t]{0.475 \textwidth}
         \centering
         \caption{Network bandwidth received in MB/s for baseline runs. Values above 5 are hidden. Runs are aggregated across LR.}
         \label{fig:net-recv_baseline}
-        \includegraphics[width=0.6\textwidth]{./figures/06_net-sent_baseline-16vCPUs-GAS-1.pdf}
+        \includegraphics[width=0.5\textwidth]{./figures/06_net-sent_baseline-16vCPUs-GAS-1.pdf}
     \end{subfigure}%
     \hfill
     \caption{Network bandwidth sent and received in MB/s for baseline runs. Runs are aggregated across LR.}
@@ -109,7 +113,7 @@ Future work may make use of local, faster storage backed by SSD to achieve faste
             \centering
             \includegraphics[width=\textwidth]{./figures/06_barplot-times-opt_baseline-16vCPUs-GAS-1.pdf}
             \caption{
-                Cumulative time taken by the \texttt{opt.step()} for every batch size, in minutes.
+                Cumulative time taken by the \texttt{opt.step()} for every batch size, in seconds.
                 Runs are further aggregated across LR and the standard error amongst runs is shown with black bars.
             }
             \label{fig:baseline-times-opt}

@@ -143,3 +143,7 @@ When saving the model for inference purposes, the selection of which peer's mode
 We use the average for system metrics such as bandwidth received and sent, CPU load and RAM usage for both baseline and Hivemind runs.
 This is because all nodes in our controlled Hivemind experiments behave more or less the same.
 In real-life scenarios such as training across the internet, where latency and peer behavior is unpredictable, this assumption would not be possible.
+
+The throughout in samples per second metric presented in the next chapter is aggregated across re-runs for baselines and peers for Hivemind experiments.
+This metric does not take into account failed average attempts, which synchronizes the peer's state with another peer, effectively nullifying its contribution up until that point.
+Future experiments using this setup should consider this and not include a peer's contribution toward the throughput metric if this happens.
