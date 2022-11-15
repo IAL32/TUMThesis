@@ -55,7 +55,7 @@ Also, volunteer hardware may not be powerful enough to make a substantial differ
 Hivemind \cite{riabinin2020hivemind} is a framework that enables volunteer computing across the internet for neural network training.
 In this thesis, we will analyze several aspects of training deep neural networks in a collaborative setting.
 
-\section{Motivation}
+\section{MOTIVATION}
 
 Hivemind implements two fundamental training algorithms, Moshpit SGD \cite{DBLP:journals/corr/abs-2103-03239} and DeDLOC \cite{DBLP:journals/corr/abs-2106-10207}.
 Moshpit SGD focuses on dealing with peers that may drop out during training, excluding their collaboration from the calculation if they become unavailable or unreliable.
@@ -77,7 +77,7 @@ To do so, we would like to answer the following research questions:
 
 In this thesis, we show that training with Hivemind in a controlled environment using limited and less powerful resources is still possible, with a few caveats and tuning.
 
-\section{Approach}
+\section{APPROACH}
 
 To answer the questions above, we created 288 experiments performed on ResNet18 \cite{he2015deep} model trained on Imagenet-1k \cite{deng2009imagenet} and compile a lessons-learned section.
 In this thesis, we will compare regular training using a single node with 16vCPUs to training using Hivemind with multiple peers, where the sum of vCPUs per peer always amounts to 16.
@@ -95,7 +95,7 @@ We compare training with key Hivemind settings, namely:
 As we test the software and its limitations, we might find possible areas of improvement in Hivemind.
 Whenever possible, we will further contribute using the knowledge gathered through our experiments by improving the Hivemind \cite{hivemind} source code.
 
-\section{Contributions}
+\section{CONTRIBUTIONS}
 
 Our contributions are summarized as follows:
 \begin{itemize}

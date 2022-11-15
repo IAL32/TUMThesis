@@ -1,7 +1,7 @@
 \chapter{RELATED WORK}\label{chapter:related-work}
 In this chapter, we provide the necessary background to understand this thesis and discuss related work.
 
-\section{Data Parallelism}
+\section{DATA PARALLELISM}
 Throughout the years, datasets and machine learning models have grown in size, requiring distributed techniques to train them efficiently.
 Data parallelism is the most common type of distributed learning and has been implemented on many common frameworks such as PyTorch \footnote{\href{https://pytorch.org/}{https://pytorch.org/}} and TensorFlow\footnote{\href{https://tensorflow.org/}{https://tensorflow.org/}} through a high-level API.
 It has been known however that operations such as updating and distributing large neural network models can run into network bottlenecks \cite{10.48550/arxiv.1705.08741, DBLP:journals/corr/abs-2003-11316, 10.5555/2999134.2999271, DBLP:journals/corr/abs-1811-03600}.
@@ -10,7 +10,7 @@ Despite these efforts, increasing the number of nodes and model size can still c
 Less known are the effects of preprocessing bottlenecks, which can severely affect the performance of models before training even starts \cite{isenko2022bottleneck, 10.1145/3448016.3457566}.
 In this thesis, we show a general approach for studying and evaluating the effects of bottlenecks in data parallelism using Hivemind.
 
-\section{Large Batch Training}
+\section{LARGE BATCH TRAINING}
 Training neural networks using large or very large batches \cite{DBLP:journals/corr/KeskarMNST16, 10.48550/arxiv.1705.08741} has gained traction amongst researchers.
 Using small batch sizes is generally preferable when using minibatch SGD algorithms as it allows escaping local minima within a few iterations.
 Increasing the number of minibatches also decreases the update frequency, making training faster.
@@ -25,7 +25,7 @@ In their experiments, \citeauthor{ryabinin2020learning} show that it is possible
 Hivemind allows setting different strategies for when parameters and model states are averaged, effectively simulating larger batches across participating peers.
 However, there is a limited amount of experiments showcasing different Hivemind configurations in a controlled environment.
 
-\section{Volunteer Computing}
+\section{VOLUNTEER COMPUTING}
 Researchers today are dealing with hard and complex problems such as particle simulation and protein folding.
 Because of their nature, these problems require immense amounts of computational power, which are not always available to single institutions.
 Supercomputers can help tackle these problems, but access to them is limited.

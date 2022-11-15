@@ -1,4 +1,4 @@
-\section{Focus on effects of local updates}\label{sec:focus-local-updates}
+\section{FOCUS ON EFFECTS OF LOCAL UPDATES}\label{sec:focus-local-updates}
 By default, the Hivemind Optimizer wraps around a Pytorch optimizer, taking control of underlying actions such as the application of gradients to the underlying model.
 When local updates (LU) are enabled, gradients are applied directly to the model at each call of the Hivemind Optimizer.
 When LU are disabled, the gradients are only applied to a model after the gradient averager and state averager have finished.

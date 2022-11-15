@@ -1,16 +1,14 @@
 \chapter{FUNDAMENTALS}\label{chapter:fundamentals}
 
-In this chapter, we are going to define the basic concepts needed to understand the contents of this paper.
-The mathematical details of algorithms or technical implementations of the presented technologies will not be described in depth, but rather briefly and concisely describe how they work.
+In this chapter, we define the basic concepts needed to understand the contents of this paper.
+The mathematical details of algorithms or technical implementations of the presented technologies will not be described in depth, but rather briefly and concisely.
 
-@isenko: still working on this part!
-
-We will formally define what are neural networks and how training works using a simple scenario.
+We formally define what neural networks are and how training works using backward propagation.
 Following, we will introduce why and how distributed computing techniques are important in today's world, and how they can be used to facilitate neural network training.
-The topic of distributed neural network training is then presented.
+We then present the topic of distributed training along with a brief definition of the techniques that have been employed so far.
 Finally, we describe Hivemind, how it works, why we chose this framework, which type of analysis we are going to conduct, and what kind of parameters are we focusing on in this paper.
 
-\section{Neural Networks}
+\section{NEURAL NETWORKS}
 Neural networks (NNs) have been a major research area in the past decade.
 However, the basics of NNs as we know them today have been around for almost 70 years but did not gain much recognition until the 2010s.
 This is mostly because the success and viability of NNs are affected by two major factors, data availability and computational power, both of which were scarce or not advanced enough.
@@ -31,14 +29,14 @@ If we were to compose a neural network using only linear functions, the output w
 Examples of non-linear functions commonly used inside NNs are the sigmoid and the rectified linear unit (ReLU).
 The weights $W$ and the bias $b$ define the result of the activation function $g$.
 
-The first and most simple type of NN that was devised is called \textit{feed-forward neural network} (FF) and is comprised of many neurons stacked together in \textit{layers}.
-These layers $f$ are then composed together to form a feed-forward NN:
+The first and most simple type of NN that was devised is the \textit{feed-forward neural network} (FFNN) and is comprised of many neurons stacked together in \textit{layers}.
+These set of layers $\{f_1, \dots, f_L\}$ are then composed together to form a feed-forward NN:
 \begin{equation}
     Y = f_1 \circ f2 \circ \ldots \circ f_L
 \end{equation}
 where $L$ is called the \textit{depth} of a FF neural network, or number of \textit{hidden layers} in a FF network.
 
-\begin{figure}[h]
+\begin{figure}[ht]
     \centering
     \caption{An example of a neural network, with input layers (green nodes), hidden layers (blue nodes), and output layer (red node).}
     \label{fig:neural-network}
@@ -134,7 +132,7 @@ Once $ACC$ batches have been aggregated or when we have finished training, we ap
     \end{algorithmic}
 \end{algorithm}
 
-\section{Distributed Computing and Storage for Neural Networks}
+\section{DISTRIBUTED COMPUTING AND STORAGE FOR NEURAL NETWORKS}
 
 A distributed system is defined as a system where its components communicate with one another using messages.
 In computer science, the use of distributed systems has been a field of research for many years and has boomed with the advent of network communications.
@@ -149,7 +147,7 @@ In general, choosing the right distributed storage software is crucial, as it ca
 
 Neural networks have quickly become too large in terms of memory and computationally expensive for a single host, thus needing distributed system techniques for training.
 
-\section{Distributed Training}
+\section{DISTRIBUTED TRAINING}
 Training a state-of-the-art neural network nowadays requires enormous amounts of time and effort, but especially resources and money.
 It is often impossible to train a model within the boundaries of a single piece of hardware, even with powerful specifications.
 This affects the speed at which neural networks are being developed and the ability to reproduce results from state-of-the-art models.
@@ -167,7 +165,7 @@ We briefly summarize distributed training techniques as follows:
 
     \item \textbf{Model parallelism};
           a deep neural network is conceptually split into $n$ partitions across $n$ devices, each hosting a different partition and set of weights.
-          An early notable example of model parallelism is AlexNet \cite{alexnet2012}, where the authors decided to split the computation of some of the layers across two GPUs with 3GB of ram each, a concept illustrated in \autoref{fig:alexnet}.
+          An early notable example of model parallelism is AlexNet \cite{alexnet2012}, where the authors decided to split the computation of some of the layers across two GPUs with 3GB of RAM each.
           This technique relieves the burden of a single node to host all of the weights of a model but is also more sensitive to issues with communication across nodes.
 
     \item \textbf{Pipeline parallelism};
@@ -181,15 +179,15 @@ We briefly summarize distributed training techniques as follows:
           Tensor parallelism can alleviate a single node's computational burden by splitting a tensor operation across many devices.
           This technique has been first introduced in neural network models in \cite{dean2012distbelief} with a framework called DistBelief.
 
-    \item \textbf{Mixture-of-Experts}.
-          Instead of conceptually splitting a model, we construct multiple, different models and split them across workers, also called ``experts''.
+    \item \textbf{Mixture-of-Experts};
+          instead of conceptually splitting a model, we construct multiple, different models and split them across workers, also called ``experts''.
           A gating function helps each of the experts to specialize in a different subset of all training cases.
           The broader concept has been first introduced in 1991 \cite{Jacobs1991mixtureofexperts} but has recently gained traction due to its flexibility in solving natural language problems.
 \end{itemize}
 
 The list is always evolving, and new techniques may be developed in the next years.
 
-\subsection{Bottleneck Analysis}
+\subsection{BOTTLENECK ANALYSIS}
 
 By definition, a \textit{bottleneck} is a component of a system that negatively affects the output of such a system.
 An example is reading and writing data from one system to another, where the storage on both sides is a very fast SSD (Solid State Drive), and the transmission speed that the network allows is 56KB/s.
@@ -204,7 +202,7 @@ Systems can also be dynamic.
 In certain cases, bottlenecks can be found on a certain subset of components, and in other cases, other components act as bottlenecks instead.
 This requires constant monitoring of key metrics of these components and an understanding of which metrics might be relevant and why.
 
-\subsection{Metrics}
+\subsection{METRICS}
 
 Metrics represent the raw information about the behavior of a system and its component, collected via a monitoring system.
 In the previous paragraphs, we have presented a relatively simple example of how bottlenecks can be identified by their components and their characteristics.
@@ -214,13 +212,13 @@ In complex and evolving systems, having pre-existing knowledge about their compo
 It is possible to gather metrics about information that is available via common interfaces such as operating system hooks and methods.
 We may track metrics about the host system such as:
 \begin{itemize}
-    \item \textbf{disk space utilization}; in addition to the amount of storage used over time, we can also track read and write operations in terms of speed.
-    \item \textbf{cpu utilization}; can provide insights about possible efficiency issues within the software by highlighting peaks in CPU utilization.
-    \item \textbf{network utilization}; distributed systems in particular may benefit from tracking metrics about network utilization, as it is one of their main components.
-    \item \textbf{memory utilization}; sometimes processes do not perform proper cleanup of their resources, leading to memory leaks, slowdowns and errors.
+    \item \textbf{Disk space utilization}; in addition to the amount of storage used over time, we can also track read and write operations in terms of speed.
+    \item \textbf{CPU utilization}; can provide insights about possible efficiency issues within the software by highlighting peaks in CPU utilization.
+    \item \textbf{Network utilization}; distributed systems in particular may benefit from tracking metrics about network utilization, as it is one of their main components.
+    \item \textbf{Memory utilization}; sometimes processes do not perform proper cleanup of their resources, leading to memory leaks, slowdowns and errors.
 \end{itemize}
 
-\section{Hivemind}
+\section{HIVEMIND}
 Hivemind is a framework that aims to enable decentralized training using several techniques, such as decentralized parameter averaging or decentralized mixture-of-experts.
 The initial concept of developing Hivemind was to enable neural network training outside the boundaries of an institution's internal network and resources, such as universities and small-medium companies.
 These institutions do not necessarily have access to the latest technologies and hardware to keep up with big companies' large budgets.
@@ -228,20 +226,20 @@ By using Hivemind, it may be possible to collectively contribute to training neu
 
 In this section, we will introduce on a high level the main components and settings that we will use throughout the thesis.
 
-\subsection{Decentralized Hash Table (DHT)}
+\subsection{DECENTRALIZED HASH TABLE (DHT)}
 A decentralized hash table or DHT is a system that provides a set of features similar to a hash table in a distributed environment.
 Because Hivemind focuses on providing a training environment for nodes across the internet, a DHT is a beneficial part of the architecture because of its fault-tolerant properties.
 Under the hood, Hivemind uses a DHT to track the presence or dropout of peers during training and to allow a direct exchange of data between them.
 An example of how this type of communication works is given in \autoref{fig:dht-communication}.
 
-\begin{figure}[h]
+\begin{figure}[ht]
     \centering
     \caption{Nodes in a Peer-to-Peer network exchanging data directly with one another. Every node has its own internal DHT which is kept in sync with other peers.}
     \label{fig:dht-communication}
     \includegraphics[width=0.5 \textwidth]{./figures/02_dht-communication.pdf}
 \end{figure}
 
-\subsection{Optimizer}
+\subsection{OPTIMIZER}
 One of the main components of Hivemind is the Hivemind Optimizer, which wraps around any other implementation of a \texttt{torch.optim.Optimizer}.
 Therefore, the Hivemind Optimizer can be used as a drop-in replacement in regular training operations.
 With default settings and with no other peer, the Hivemind optimizer is designed to perform exactly as the underlying \texttt{torch.optim.Optimizer} class.
@@ -268,7 +266,7 @@ After another step, the accumulated samples are equal to $128+(64+64)=256$.
 Because the total number of accumulated samples is now 256 and it is equal to TBS, each peer can now initiate an averaging round with all other participating peers.
 What happens right before and after averaging depends on the \texttt{use\_local\_updates} setting.
 
-\subsection{Parameter Averaging}
+\subsection{PARAMETER AVERAGING}
 
 Optimizers used for deep learning training such as SGD \cite{10.1214/aoms/1177729392} and ADAM \cite{10.48550/arxiv.1412.6980} need some information stored in memory to operate.
 When training collaboratively, each peer may perform operations using a local version of these vectors to proceed with training.
@@ -276,7 +274,7 @@ However, optimizer parameters may diverge during training, in turn causing the u
 It is possible to mitigate this effect by performing operations that take into account all of the peer's information, for example with \textit{AllReduce} operations.
 In the case of Hivemind, the operation of choice is averaging, which can be performed for both the optimizer state and the gradients before applying them to the model.
 
-\begin{figure}[h]
+\begin{figure}[ht]
     \centering
     \begin{subfigure}[b]{0.475 \textwidth}
         \centering
@@ -312,14 +310,14 @@ The setting has two modes:
           A simplified flow of how Hivemind implements this mode is illustrated in \autoref{fig:use-local-updates_false}.
 \end{itemize}
 
-\begin{figure}[h]
+\begin{figure}[ht]
     \centering
     \caption{Diagram of Hivemind training with local updates enabled.}
     \label{fig:use-local-updates_true}
     \includegraphics[width=0.8 \textwidth]{./figures/02_use-local-updates_true.pdf}
 \end{figure}
 
-\begin{figure}[h]
+\begin{figure}[ht]
     \centering
     \caption{Diagram of Hivemind training with local updates disabled.}
     \label{fig:use-local-updates_false}

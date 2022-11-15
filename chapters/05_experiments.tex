@@ -12,7 +12,7 @@ For example, a run with batch size $128$ and 8 peers should result in 312.5 samp
 In these cases, the number of samples per peer is rounded up to the nearest digit to form an even number.
 This chapter describes the basic setup of our experiments.
 
-\section{Base Case}
+\section{BASELINE CASE}
 
 To preserve a comparison consistency between each experiment run, the number of steps depends on two factors: the number of peers involved in the training, and the batch size.
 We designed our baseline experiments in a grid search, covering the following training hyperparameters:
@@ -58,7 +58,7 @@ The machines used for baseline runs have 16vCPUs and each experiment is repeated
 Hivemind features such as the DHT and the Optimizer wrapper are completely deactivated for these runs.
 \autoref{table:baseline-experiments} lists all the 18 combinations of experiments that we cover in this thesis.
 
-\section{Not-Baseline Case}\label{sec:not-baseline-case}
+\section{NOT-BASELINE CASE}\label{sec:not-baseline-case}
 
 To test and isolate the effects of using Hivemind for distributed training, every experiment changes only a single parameter at a time.
 For this, we can divide the set of non-baseline cases into different categories depending on which parameter has been changed.
@@ -121,7 +121,7 @@ We have fixed the following Hivemind hyperparameters that were not the focus of 
           Other works have focused on the effects of data sparsity and data parallelism \cite{DBLP:journals/corr/abs-2003-11316}.
 \end{itemize}
 
-\section{Metrics comparison framework}
+\section{METRICS COMPARISON FRAMEWORK}
 
 In the next chapter, we will compare training and system metrics between baseline and Hivemind runs.
 However, they are not directly comparable.

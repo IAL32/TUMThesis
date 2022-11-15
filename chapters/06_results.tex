@@ -4,7 +4,7 @@ In this thesis, we are not looking to obtain the best possible combination of hy
 Instead, we want to observe the effects on training with Hivemind when tuning common hyperparameters such as batch size and learning rate and Hivemind hyperparameters such as the TBS.
 In this thesis, we analyze the performance and limits of training using Hivemind rather than looking for the best model.
 
-\section{Baseline runs}
+\section{BASELINE RUNS}
 
 We begin this chapter by showing the results that we have obtained with the baseline runs.
 As mentioned previously in \autoref{chapter:setup}, all baseline experiments are executed on machines with the same configuration, and the total number of samples processed is always the same.
@@ -121,12 +121,13 @@ Future work may make use of local, faster storage backed by SSD to achieve faste
     \end{minipage}
 \end{minipage}
 
-Finally, we zoom in on the effect of GAS for baseline runs on the optimizer step times in \autoref{fig:baseline-times-opt}.
-The graph shows the total amount of time spent for each run to perform \texttt{opt.step()}, grouped by LR.
-As we might expect from \autoref{alg:grad-acc-training}, doubling GAS led to half the time spent on the optimizer step, as it is called exactly half of the time.
-Furthermore, as we increase the batch size, we also reduce the amount of time spent performing the optimization step.
+\autoref{fig:baseline-times-stacked} further shows the very small impact of the optimization step within each step, taking 0.015 seconds on average to complete, independently from the batch size.
+In theory, we should expect that reducing the frequency at which the optimization step is called also reduces its contribution on overall training.
+\autoref{fig:baseline-times-opt} shows the total amount of time spent for each run to perform \texttt{opt.step()}, grouped by LR.
+Doubling the batch size indeed reduces this contribution, as the maximum number of steps is divided by two.
 Because backpropagation scales with the number of outputs, performing the optimization step does not scale up with the increased input size.
-In the next sections, we will further analyze the effects of using GAS together with other Hivemind settings.
+As we might expect from \autoref{alg:grad-acc-training}, doubling GAS led to half the time spent on the optimizer step, as it is called exactly half of the time.
+In the next sections, we will further analyze the effects on the optimization step when increasing GAS together with other Hivemind settings.
 
 \input{chapters/06a_focus_batch_size.tex}
 
