@@ -50,7 +50,7 @@ An example of one such architecture is represented in \autoref{fig:neural-networ
 At this point, the model has fixed parameters $W$ and $b$, so given the same input, the output will be the same.
 We would like to update the parameters in such a way that the output reflects some arbitrary characteristic of the input, a process called \textit{training}.
 
-\subsection{Training}
+\subsection{TRAINING}
 
 Using our example, the NN should learn over time and using many examples, which images represent a cat, and which ones represent a dog.
 We can provide information to the neural network about whether or not it is right or wrong, and update its parameters according to how much it is far from the truth.
@@ -77,11 +77,14 @@ At several stages during training, a neural network practitioner might want to v
 This is called the \textit{validation step}, and it is performed without changing the network's parameters or architecture.
 Validation steps are crucial to understanding if the changes made to a model are biased towards a specific set of inputs, an effect denominated \textit{underfitting}.
 
-\subsection{Gradient Accumulation}\label{sec:gradient-accumulation}
+\subsection{GRADIENT ACCUMULATION}\label{sec:gradient-accumulation}
 
 When training neural networks, increasing batch size can sometimes lead to faster convergence \cite{Krizhevsky2014owt, goyal2017accurate, you2017scaling}.
 However, simply increasing the batch size during training does not scale very well, and can lead to memory issues or an inability to train at all.
 To help simulate bigger batches on a single device without incurring these issues, we can use a technique called \textit{gradient accumulation}.
+Assuming classic SGD algorithm and generally empirical risk minimization functions, we can perform this operation because the gradient function is a linear function.
+Thus, performing gradient accumulation does not incur in any difference, mathematically speaking.
+In this thesis, we will analyze its effects on training accuracy when using Hivemind.
 
 Algorithm~\ref{alg:standard-training} shows a simplified version of an algorithm used to train neural networks.
 A dataset consisting of a set of inputs $X$ and $Y$ labels, both with length $N$, is used as the input to the model, with a training loop supporting a single epoch.
